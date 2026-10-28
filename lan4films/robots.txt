@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://lan4films.com.br/sitemap.xml

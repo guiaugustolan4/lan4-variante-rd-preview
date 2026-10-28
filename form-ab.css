@@ -1,0 +1,77 @@
+/* ─────────────────────────────────────────────────────────────────────
+   LAN4 — CSS de apoio ao teste A/B do formulário.
+   Carregado em todas as páginas com form. Traz os componentes de
+   radio-card que hoje só existem no <style> inline das LPs de serviço —
+   necessários porque a home e o Engine passam a usar radio-cards em
+   faturamento/cargo nas DUAS variantes.
+   Paleta e medidas copiadas 1:1 do bloco das LPs (mesma marca).
+   ───────────────────────────────────────────────────────────────────── */
+
+/* rótulo de subgrupo dentro de uma etapa (ex.: "Faturamento médio mensal*") */
+.lf-sublabel{
+  display:block;margin-bottom:8px;
+  font-family:'Host Grotesk',sans-serif;
+  font-size:.82rem;font-weight:600;color:rgba(255,255,255,.85);
+}
+.lf-group[role="radiogroup"]{margin-bottom:1.1rem}
+
+/* grade de opções — faturamento/cargo usam 1 coluna (rótulos de faixa
+   como "Menos de R$ 100 mil/mês" não cabem em 2 colunas sem quebrar feio).
+   As páginas já trazem .lf-options no <style> inline; aqui é só fallback. */
+.lf-options{display:grid;gap:8px}
+/* rótulo de faturamento à esquerda no card (não centralizado) fica mais
+   escaneável quando são 5 faixas empilhadas; card mais baixo que o padrão
+   de 48px do bloco de serviço (que tem 2 linhas título+descrição) */
+.lf-group[role="radiogroup"] .lf-options .lf-opt span{
+  justify-content:flex-start;text-align:left;padding-left:16px;
+  min-height:44px;padding-top:12px;padding-bottom:12px;
+}
+
+/* radio-card genérico (faturamento/cargo) */
+.lf-opt{position:relative;display:block;cursor:pointer;margin-bottom:0}
+.lf-opt input{position:absolute;opacity:0;pointer-events:none}
+.lf-group label.lf-opt{
+  text-transform:none;letter-spacing:normal;
+  font-family:'CreatoDisplay',sans-serif;font-size:14.5px;font-weight:400;
+  color:inherit;margin-bottom:0;
+}
+.lf-opt span{
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  min-height:48px;padding:10px 12px;border-radius:10px;
+  background:#E9EBEF;color:#1a1f2c;font-size:14.5px;line-height:1.25;
+  border:1.5px solid transparent;
+  transition:border-color .15s ease,background .15s ease,box-shadow .15s ease;
+}
+.lf-opt input:checked+span{
+  background:#FFD900;border-color:#FFD900;color:#0a1628;
+  box-shadow:0 4px 14px rgba(255,217,0,.35);font-weight:700;
+}
+/* O check fica só no selo circular à direita (::after, definido no <style>
+   inline de cada página). Não adicionar um "✓" antes do texto — vira check
+   duplicado nos radio-cards de serviço. */
+.lf-opt input:checked+span::before{content:none}
+.lf-opt input:focus-visible+span{border-color:#154CC4;outline:2px solid #154CC4;outline-offset:1px}
+
+/* radio-card "rico" (serviço — título + descrição). Só define o que
+   a home/engine não têm; as LPs já trazem isto no inline <style>. */
+.radio-card-group{display:grid;gap:8px}
+.lf-opt.radio-card span{
+  flex-direction:column;align-items:flex-start;text-align:left;
+  min-height:auto;padding:12px 14px;gap:2px;
+}
+.lf-opt.radio-card span strong{font-weight:700;font-size:14.5px}
+.lf-opt.radio-card span small{font-size:12.5px;opacity:.8;font-weight:400}
+.lf-opt.radio-card input:checked+span small{opacity:.9}
+
+/* hint de correção de typo de e-mail */
+.lf-email-typo{
+  display:block;margin-top:5px;font-size:12px;font-weight:600;
+  color:#FFD900;font-family:'Host Grotesk',sans-serif;
+}
+.lf-email-typo[hidden]{display:none}
+
+/* Um campo por linha no mobile (a home usa .lf-row com 2 colunas) */
+@media (max-width:520px){
+  .lf-row{display:block}
+  .lf-row .lf-group{margin-bottom:1rem}
+}

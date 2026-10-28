@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-domain="marketing" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5" />
+
+  <!-- Modo prévia: fora de lan4.com.br (ex.: GitHub Pages) o GTM não carrega
+       e o main.js não envia conversões ao RD — nenhum teste polui GA4/Ads/RD. -->
+  <script>window.LAN4_PREVIEW = !/(^|\.)lan4\.com\.br$/.test(location.hostname);
+  if (window.LAN4_PREVIEW) { var m = document.createElement('meta'); m.name = 'robots'; m.content = 'noindex,nofollow'; document.head.appendChild(m); }</script>
+
+  <!-- Google Tag Manager -->
+  <script>if (!window.LAN4_PREVIEW) (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-KK94LW4M');</script>
+  <!-- End Google Tag Manager -->
+
+  <title>Diagnóstico de Receita B2B | LAN4</title>
+  <meta name="description" content="Sua receita depende de uma pessoa, um canal ou um mês bom? Responda 4 perguntas rápidas, receba o guia 'A Engrenagem' e a LAN4 volta com o que está travando seu crescimento.">
+  <meta name="robots" content="noindex,nofollow">
+  <script>window.LAN4_SERVICO_PAGINA = 'Engine';</script>
+
+  <link rel="icon" type="image/svg+xml" href="../../img/4.svg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="../../css/tokens.css" />
+  <link rel="stylesheet" href="../../css/components.css?v=20260901" />
+
+  <style>
+    .lf-consent{display:flex;gap:.6rem;align-items:flex-start;margin:1rem 0 .9rem;padding:10px 12px 10px 10px;border-radius:10px;background:rgba(255,255,255,.04);font-size:.8rem;line-height:1.45;opacity:.9;cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .lf-consent:hover{background:rgba(255,255,255,.07)}
+    .lf-consent input{flex:none;width:22px;height:22px;margin:0;accent-color:#FFD900;cursor:pointer}
+    .lf-consent > span{padding-top:2px}
+    .lf-consent a{color:#FFD900;text-decoration:underline}
+    /* ── Formulário multi-etapas (motor nativo do main.js) ───────────── */
+    .lf-step{display:none;border:0;padding:0;margin:0;min-width:0}
+    .lf-step.is-active{display:block;animation:lfStepIn .3s ease}
+    @keyframes lfStepIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+    @media (prefers-reduced-motion:reduce){.lf-step.is-active{animation:none}}
+    .lf-progress{margin-bottom:2rem}
+    .lf-progress-meta{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;margin-bottom:.7rem;font-family:'Host Grotesk',sans-serif}
+    .lf-progress-count{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+    .lf-progress-count b{color:#FFD900}
+    .lf-progress-title{display:none}
+    .lf-progress-track{display:flex;gap:6px}
+    .lf-progress-seg{flex:1;height:4px;border-radius:99px;background:rgba(255,255,255,.16);transition:background .3s ease}
+    .lf-progress-seg.is-active{background:rgba(255,217,0,.55)}
+    .lf-progress-seg.is-done{background:#FFD900}
+    .lf-label{display:block;font-family:'Host Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.78);margin-bottom:9px}
+    .lf-options{display:grid;gap:10px;min-width:0}
+    .lf-opt{position:relative;display:block;cursor:pointer;margin-bottom:0;min-width:0}
+    .lf-opt input{position:absolute;opacity:0;pointer-events:none}
+    .lf-group label.lf-opt{text-transform:none;letter-spacing:normal;font-family:'CreatoDisplay',sans-serif;font-size:16px;font-weight:400;color:inherit;margin-bottom:0;text-shadow:none}
+    .lf-opt span{position:relative;display:flex;align-items:center;justify-content:center;text-align:center;min-height:56px;padding:14px 40px;border-radius:12px;background:#E9EBEF;color:#1a1f2c;font-family:'CreatoDisplay',sans-serif;font-size:16px;font-weight:500;line-height:1.3;border:1.5px solid transparent;transition:border-color .15s ease,background .15s ease,box-shadow .15s ease,transform .15s ease}
+    .lf-opt input:checked+span{background:#FFD900;border-color:#FFD900;color:#0a1628;box-shadow:0 8px 22px rgba(255,217,0,.4);font-weight:700;transform:translateY(-1px)}
+    .lf-opt input:checked+span::after{content:'✓';position:absolute;right:14px;top:50%;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#0a1628;color:#FFD900;font-size:11px;font-weight:800;line-height:1}
+    .lf-opt input:focus-visible+span{border-color:#154CC4}
+    .lf-opt:hover span{background:#dfe2e9}
+    .lf-opt input:checked:hover+span{background:#FFD900}
+    .lf-nav{display:flex;gap:10px;align-items:stretch;margin-top:1.2rem}
+    .lf-nav .lf-btn{flex:1;margin-top:0}
+    .lf-nav--back-only{justify-content:flex-start;margin-top:1.4rem}
+    .lf-back{flex:none;background:none;border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.85);border-radius:10px;padding:10px 16px;font-family:'Host Grotesk',sans-serif;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:border-color .15s ease}
+    .lf-back:hover{border-color:rgba(255,255,255,.5)}
+    .lf-step-msg{display:none;align-items:flex-start;gap:9px;margin:0 0 1rem;padding:12px 14px;border-radius:10px;font-size:13.5px;font-weight:600;line-height:1.5;background:#FFF0F0;border:1.5px solid #F02020;color:#B00E0E;animation:lfStepMsgIn .2s ease}
+    .lf-step-msg::before{content:'!';flex:none;display:flex;align-items:center;justify-content:center;width:18px;height:18px;margin-top:1px;border-radius:50%;background:#F02020;color:#fff;font-size:12px;font-weight:800;font-family:'Host Grotesk',sans-serif}
+    @keyframes lfStepMsgIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+    .lf-field-hint{display:block;margin-top:6px;font-size:.78rem;line-height:1.4;color:rgba(255,255,255,.55)}
+    form.is-sent .lf-step,form.is-sent .lf-progress{display:none}
+    /* Banner de incentivo — mesmo padrão amarelo piscante da home (.lf-next-hint) */
+    .lf-next-hint{display:flex;align-items:flex-start;gap:8px;margin:0 0 1.1rem;padding:12px 14px;border-radius:10px;background:#FFD900;border:2px solid #FFD900;animation:lfIncentivoPulse 1.6s ease-in-out infinite}
+    .lf-next-hint-icon{flex:none;display:flex;width:16px;height:16px;margin-top:2px;color:#0A1428}
+    .lf-next-hint span:last-child{font-family:'Host Grotesk',sans-serif;font-size:12.5px;font-weight:500;letter-spacing:.01em;line-height:1.5;color:#0A1428}
+    .lf-next-hint span:last-child strong{font-weight:800}
+    @keyframes lfIncentivoPulse{0%,100%{background:#FFD900;border-color:#FFD900;box-shadow:0 0 0 0 rgba(255,217,0,.5)}50%{background:#ffe680;border-color:#fff;box-shadow:0 0 0 6px rgba(255,217,0,.3)}}
+    @media (prefers-reduced-motion:reduce){.lf-next-hint{animation:none}}
+    .lf-select-group{margin-bottom:1rem}
+    .lf-select-group label{display:block;margin-bottom:6px;font-family:'Host Grotesk',sans-serif;font-size:.85rem;font-weight:600;color:rgba(255,255,255,.85)}
+    .lf-select{width:100%;padding:14px 16px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;font-family:'Host Grotesk',sans-serif;font-size:.95rem;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;background-size:16px;cursor:pointer}
+    .lf-select:focus{outline:none;border-color:#FFD900}
+    .lf-select option{background:#0A1428;color:#fff}
+    .radio-card-group{grid-template-columns:1fr 1fr;align-items:stretch;min-width:0}
+    @media (max-width:480px){.radio-card-group{grid-template-columns:1fr}}
+    .radio-card{height:100%;min-width:0}
+    .radio-card span{flex-direction:column;align-items:center;justify-content:center;text-align:center;height:100%;min-height:92px;padding:16px 30px;gap:5px;box-sizing:border-box}
+    .radio-card span strong{display:block;font-family:'CreatoDisplay',sans-serif;font-weight:600;font-size:15px;line-height:1.25;color:inherit}
+    .radio-card span small{display:block;font-family:'CreatoDisplay',sans-serif;font-weight:400;font-size:12.5px;line-height:1.4;opacity:.85}
+    .radio-card input:checked+span{background:#FFD900;border-color:#FFD900;color:#0a1628;box-shadow:0 8px 22px rgba(255,217,0,.4);font-weight:700;transform:translateY(-1px)}
+    .radio-card input:checked+span strong{color:inherit}
+    .radio-card input:checked+span small{opacity:.8}
+    .radio-card input:checked+span::after{top:14px;right:14px;transform:none;background:#0a1628;color:#FFD900}
+    .lan4-preview-badge{position:fixed;bottom:20px;left:12px;z-index:999;background:#7c3aed;color:#fff;border-radius:999px;font:600 10.5px/1.4 'Host Grotesk',sans-serif;letter-spacing:.05em;text-transform:uppercase;padding:7px 14px;box-shadow:0 6px 18px rgba(0,0,0,.4);pointer-events:none}
+
+    /* ── Quiz full-screen específico ──────────────────────────────── */
+    .quiz-shell{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;background:var(--lan4-blue-dark);position:relative;overflow:hidden}
+    .quiz-glow{position:absolute;inset:0;background:radial-gradient(60% 50% at 50% 0%,rgba(255,217,0,.10),transparent 60%),radial-gradient(50% 40% at 100% 100%,rgba(21,76,196,.35),transparent 60%);pointer-events:none}
+    /* padding equivalente ao --spacing-outer-gutter responsivo do site (16px
+       mobile → 40px desktop) nos dois eixos, pra logo não colar na borda
+       nem no topo da viewport igual ficava sem esse respiro vertical */
+    .quiz-header{position:relative;z-index:2;padding:24px var(--spacing-outer-gutter);display:flex;justify-content:center}
+    .quiz-logo{width:72px;height:auto;opacity:.95}
+    .quiz-body{position:relative;z-index:2;flex:1;display:flex;align-items:center;justify-content:center;padding:32px var(--spacing-outer-gutter) 48px}
+    .quiz-card{width:100%;max-width:560px}
+    .quiz-eyebrow{font-family:'Host Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--lan4-yellow);margin:0 0 10px;text-align:center}
+    .quiz-intro-title{font-family:'Host Grotesk',sans-serif;color:#fff;letter-spacing:-.01em;font-size:clamp(24px,5.4vw,36px);font-weight:600;line-height:1.18;margin:0 0 14px;text-align:center}
+    .quiz-intro-title strong{color:var(--lan4-yellow)}
+    .quiz-intro-sub{color:var(--color-marketing-subtle);font-size:15px;line-height:1.55;text-align:center;max-width:460px;margin:0 auto 28px}
+    .quiz-start-btn{display:flex;width:100%;justify-content:center}
+    .quiz-microcopy{margin-top:16px;text-align:center;font-family:'Host Grotesk',sans-serif;font-size:11.5px;color:rgba(255,255,255,.5);letter-spacing:.02em}
+    .quiz-perk{display:flex;gap:12px;align-items:flex-start;max-width:460px;margin:0 auto 26px;padding:14px 16px;border-radius:12px;background:rgba(255,217,0,.08);border:1px solid rgba(255,217,0,.28);text-align:left}
+    .quiz-perk-icon{flex:none;width:22px;height:22px;color:var(--lan4-yellow);margin-top:1px}
+    .quiz-perk-txt{font-family:'Host Grotesk',sans-serif;font-size:13px;line-height:1.5;color:rgba(255,255,255,.82)}
+    .quiz-perk-txt strong{color:var(--lan4-yellow);font-weight:700}
+    .quiz-step-hint{margin:-4px 0 16px;font-size:.85rem;line-height:1.5;color:rgba(255,255,255,.65);text-align:left}
+  </style>
+</head>
+
+<body>
+
+  <!-- Honeypot anti-bot (main.js lê via querySelector global) — invisível
+       pra humano (fora da viewport, não display:none), mas bots simples
+       preenchem todo campo que encontram. Qualquer valor aqui bloqueia o
+       envio ao RD silenciosamente (ver lan4PareceBot em main.js). -->
+  <input type="text" name="website_hp" tabindex="-1" autocomplete="off"
+    style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;" aria-hidden="true">
+
+
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KK94LW4M"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="quiz-shell" id="contato">
+    <div class="quiz-glow" aria-hidden="true"></div>
+
+    <header class="header quiz-header">
+      <svg class="quiz-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 824.39 249.66" aria-hidden="true" focusable="false">
+        <g fill="#fff">
+          <path d="M65.49,0v112.53h87.52v35.51H0V0h65.49Z"/>
+          <path d="M153.01,148.03L223.31,0h88.61l69.21,148.03h-69.91l-10.09-28h-69.29l-10.32,28h-68.51ZM288.95,86.28l-22.11-61.23-22.5,61.23h44.62Z"/>
+          <path d="M590.55,148.03h-86.2l-60.99-103.31v103.31h-62.23V0h90.86l56.33,94.88V0h62.23v148.03Z"/>
+        </g>
+        <g fill="#FFD900">
+          <path d="M528.32,147.7c26.95-14.09,57.22-34.45,90.82-61.08,33.59-26.63,65.8-55.51,96.64-86.63h43.24v148.87s65.37,0,65.37,0v52.15h-65.37s0,48.64,0,48.64h-41.03v-48.64s-189.67,0-189.67,0v-53.32ZM657.55,108.69c-21.52,17.34-39.59,30.73-54.21,40.18h114.65s0-93.83,0-93.83c-18.77,18.42-38.92,36.3-60.44,53.65Z"/>
+        </g>
+      </svg>
+    </header>
+
+    <div class="quiz-body">
+      <div class="quiz-card">
+
+        <!-- ── Intro: FORA da <form> de propósito — se ficasse dentro, o
+             clique em "Começar" contaria como form_start no GTM (o
+             listener global escuta focusin em qualquer elemento dentro de
+             <form>), inflando a métrica de quem "inicia" o form com gente
+             que só abriu a tela e não respondeu nada. Com a intro fora,
+             form_start só dispara no primeiro campo real (pergunta 1). ── -->
+        <div class="quiz-intro-screen" id="quiz-intro-screen">
+          <p class="quiz-eyebrow">Diagnóstico de receita · 1 minuto</p>
+          <h1 class="quiz-intro-title">Sua receita depende de <strong>uma pessoa, um canal ou um mês bom?</strong></h1>
+          <p class="quiz-intro-sub">Responda 4 perguntas rápidas. A LAN4 volta com um retorno sobre o que está travando o crescimento da sua receita — e você recebe agora o guia abaixo.</p>
+
+          <div class="quiz-perk">
+            <span class="quiz-perk-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            </span>
+            <div class="quiz-perk-txt">
+              <strong>Guia "A Engrenagem"</strong> — as 7 peças que decidem se marketing e vendas geram receita, com autodiagnóstico. Chega no seu e-mail assim que você terminar.
+            </div>
+          </div>
+
+          <div class="quiz-start-btn">
+            <button type="button" class="lf-btn" id="quiz-start-btn">Começar o diagnóstico</button>
+          </div>
+          <p class="quiz-microcopy">Leva menos de 1 minuto · Sem compromisso</p>
+        </div>
+
+        <form id="lf" novalidate data-rd-id="lan4-lp-diagnostico" style="display:none">
+
+          <div class="lf-progress" id="quiz-progress">
+            <div class="lf-progress-meta">
+              <span class="lf-progress-count">Pergunta <b data-step-current>1</b> de 4</span>
+            </div>
+            <div class="lf-progress-track" aria-hidden="true">
+              <span class="lf-progress-seg is-active"></span><span class="lf-progress-seg"></span><span class="lf-progress-seg"></span><span class="lf-progress-seg"></span>
+            </div>
+          </div>
+
+          <!-- ── Pergunta 1: Faturamento ── -->
+          <fieldset class="lf-step is-active" data-step-name="faturamento" data-step-title="Faturamento"
+                    data-req="faturamento:Faturamento médio mensal">
+            <span class="lf-label">Qual o faturamento médio mensal da sua empresa?</span>
+            <div class="lf-options" role="radiogroup" aria-label="Faturamento médio mensal">
+              <label class="lf-opt"><input type="radio" name="faturamento" value="Até 100k"><span>Até 100k</span></label>
+              <label class="lf-opt"><input type="radio" name="faturamento" value="100 - 300k"><span>100 - 300k</span></label>
+              <label class="lf-opt"><input type="radio" name="faturamento" value="300k - 1M"><span>300k - 1M</span></label>
+              <label class="lf-opt"><input type="radio" name="faturamento" value="Acima de 1M"><span>Acima de 1M</span></label>
+              <label class="lf-opt"><input type="radio" name="faturamento" value="Não faturo"><span>Não faturo ainda</span></label>
+            </div>
+            <div class="lf-step-msg" role="alert"></div>
+          </fieldset>
+
+          <!-- ── Pergunta 2: Cargo ── -->
+          <fieldset class="lf-step" data-step-name="cargo" data-step-title="Cargo"
+                    data-req="cargo:Cargo">
+            <span class="lf-label">Qual o seu cargo?</span>
+            <div class="lf-options" role="radiogroup" aria-label="Cargo">
+              <label class="lf-opt"><input type="radio" name="cargo" value="Sócio"><span>Sócio</span></label>
+              <label class="lf-opt"><input type="radio" name="cargo" value="CEO / Fundador"><span>CEO / Fundador</span></label>
+              <label class="lf-opt"><input type="radio" name="cargo" value="Diretor"><span>Diretor</span></label>
+              <label class="lf-opt"><input type="radio" name="cargo" value="Gerente"><span>Gerente</span></label>
+              <label class="lf-opt"><input type="radio" name="cargo" value="Outro"><span>Outro</span></label>
+            </div>
+            <div class="lf-step-msg" role="alert"></div>
+            <div class="lf-nav lf-nav--back-only"><button type="button" class="lf-back">Voltar</button></div>
+          </fieldset>
+
+          <!-- ── Pergunta 3: Serviço de interesse (mesmo campo/opções da home) ── -->
+          <fieldset class="lf-step" data-step-name="servico" data-step-title="Serviço de interesse" data-no-autoadvance
+                    data-req="servico_interesse:Serviço de interesse">
+            <span class="lf-label">Qual serviço você precisa?</span>
+            <p class="quiz-step-hint">Pode selecionar mais de um — marque quantos precisar.</p>
+            <div class="lf-options radio-card-group" role="group" aria-label="Qual serviço você precisa?">
+              <label class="lf-opt radio-card">
+                <input type="checkbox" name="servico_interesse" value="Engine">
+                <span><strong>Engine (Solução 360°)</strong><small>Todos os serviços abaixo numa única operação integrada.</small></span>
+              </label>
+              <label class="lf-opt radio-card"><input type="checkbox" name="servico_interesse" value="Vendas e CRM"><span><strong>Vendas e CRM</strong><small>Time de SDRs e closers dedicado, da prospecção ao fechamento.</small></span></label>
+              <label class="lf-opt radio-card"><input type="checkbox" name="servico_interesse" value="Marketing Digital"><span><strong>Marketing Digital</strong><small>Landing page, e-mail marketing, SEO/GEO e performance no digital.</small></span></label>
+              <label class="lf-opt radio-card"><input type="checkbox" name="servico_interesse" value="Mídia Paga"><span><strong>Mídia Paga</strong><small>Gestão de anúncios (Google, Meta) para gerar leads qualificados.</small></span></label>
+              <label class="lf-opt radio-card"><input type="checkbox" name="servico_interesse" value="Gestão de Redes Sociais"><span><strong>Gestão de Redes Sociais</strong><small>Planejamento e produção de conteúdo para suas redes sociais.</small></span></label>
+              <label class="lf-opt radio-card"><input type="checkbox" name="servico_interesse" value="Audiovisual e Conteúdo"><span><strong>Audiovisual e Conteúdo</strong><small>Produção de vídeo e conteúdo para fortalecer sua marca.</small></span></label>
+              <label class="lf-opt radio-card"><input type="checkbox" name="servico_interesse" value="Eventos Corporativos"><span><strong>Eventos Corporativos</strong><small>Planejamento e execução de eventos para gerar negócio.</small></span></label>
+              <label class="lf-opt radio-card"><input type="checkbox" name="servico_interesse" value="Recrutamento e Seleção"><span><strong>Recrutamento e Seleção</strong><small>Atração e seleção de talentos para sua operação comercial.</small></span></label>
+            </div>
+            <div class="lf-step-msg" role="alert"></div>
+            <div class="lf-nav">
+              <button type="button" class="lf-back">Voltar</button>
+              <button type="button" class="lf-btn lf-next">Continuar</button>
+            </div>
+          </fieldset>
+
+          <!-- ── Pergunta 4: Contato (compromisso após investimento) ── -->
+          <fieldset class="lf-step" data-step-name="contato" data-step-title="Contato" data-no-autoadvance
+                    data-req="nome:Nome,email:Email,telefone:Telefone,empresa:Empresa,lgpd_consent:Autorização de contato (LGPD)">
+            <div class="lf-next-hint" role="note">
+              <span class="lf-next-hint-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+              <span><strong>Falta só essa etapa!</strong> Você recebe no seu e-mail o guia <strong>"A Engrenagem"</strong>, as 7 peças que decidem se marketing e vendas geram receita, com autodiagnóstico, antes mesmo de alguém da LAN4 entrar em contato.</span>
+            </div>
+            <span class="lf-label">Quase lá — para onde retornamos seu contato?</span>
+            <div class="lf-row">
+              <div class="lf-group">
+                <label for="lf-nome">Nome*</label>
+                <input id="lf-nome" name="nome" type="text" autocomplete="name" placeholder="Seu nome completo">
+              </div>
+              <div class="lf-group">
+                <label for="lf-email">Seu melhor e-mail*</label>
+                <input id="lf-email" name="email" type="email" autocomplete="email" placeholder="joao@gmail.com.br">
+              </div>
+            </div>
+            <div class="lf-row">
+              <div class="lf-group">
+                <label for="lf-tel">WhatsApp com DDD*</label>
+                <input id="lf-tel" name="telefone" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="11998765432">
+                <span class="lf-field-hint">Usamos seu WhatsApp só para retornar este contato.</span>
+              </div>
+              <div class="lf-group">
+                <label for="lf-empresa">Empresa*</label>
+                <input id="lf-empresa" name="empresa" type="text" autocomplete="organization" placeholder="Nome da empresa">
+              </div>
+            </div>
+            <label class="lf-consent">
+              <input type="checkbox" name="lgpd_consent">
+              <span>Autorizo a LAN4 a usar meus dados para retornar este contato, conforme a <a href="/politica-de-privacidade/" target="_blank" rel="noopener">política de privacidade</a>.</span>
+            </label>
+            <div class="lf-step-msg" role="alert"></div>
+            <div class="lf-nav">
+              <button type="button" class="lf-back">Voltar</button>
+              <button type="submit" class="lf-btn">Enviar</button>
+            </div>
+          </fieldset>
+
+          <div class="lf-msg" id="lf-msg"></div>
+
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- JS -->
+  <script src="../../preview-rd-simulador.js"></script>
+  <script src="../../main.js?v=20261014b" defer></script>
+  <script>
+  // Troca a tela de intro (fora do <form>, de propósito — ver comentário no
+  // HTML) pelo form real ao clicar em "Começar". lan4MultiStep (main.js) já
+  // inicializa o form no load (mostra a etapa 1 com .is-active), só fica
+  // oculto por display:none até este clique — nenhuma lógica de navegação
+  // duplicada aqui, só a troca de visibilidade entre as duas telas.
+  document.addEventListener('DOMContentLoaded', function () {
+    var introScreen = document.getElementById('quiz-intro-screen');
+    var form = document.getElementById('lf');
+    var startBtn = document.getElementById('quiz-start-btn');
+    if (!introScreen || !form || !startBtn) return;
+    startBtn.addEventListener('click', function () {
+      introScreen.style.display = 'none';
+      form.style.display = '';
+    });
+  });
+  </script>
+
+</body>
+</html>

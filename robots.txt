@@ -1,0 +1,20 @@
+# LAN4 — lan4.com.br
+# Estrategia GEO: bots de IA PERMITIDOS por padrao (queremos ser citados).
+
+User-agent: *
+Allow: /
+
+# Bots de IA — permitidos explicitamente (documentacao da decisao)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://lan4.com.br/sitemap.xml
