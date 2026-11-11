@@ -2039,8 +2039,7 @@ const revealObserver = new IntersectionObserver((entries) => {
 }, { threshold: 0.12 });
 
 /* ─── Botão flutuante WhatsApp ───────────────────────────────────────
-   Aparece após LAN4_WHATSAPP_DELAY_MS (8s — faixa de mercado para
-   gatilhos proativos de chat/WhatsApp: 8–15s). Some ao
+   Aparece após LAN4_WHATSAPP_DELAY_MS (50s desde 11/11/2026; antes 8s). Some ao
    primeiro form_start para não competir com quem já está preenchendo.
    Antes de abrir o WhatsApp, coleta nome/e-mail/telefone num modal leve
    e envia como lead real ao RD (identificador lan4-whatsapp-click) —
@@ -2050,7 +2049,7 @@ const revealObserver = new IntersectionObserver((entries) => {
    real na sessão — nunca alega mídia paga sem o dado vir da URL. */
 (function () {
   var LAN4_WHATSAPP_NUMERO = '5511944877193';
-  var LAN4_WHATSAPP_DELAY_MS = 8000;
+  var LAN4_WHATSAPP_DELAY_MS = 50000; // 50s (era 8s) — pedido do Giovanny 11/11/2026
   var LAN4_WHATSAPP_IDENTIFICADOR = 'lan4-whatsapp-click';
 
   /* Foco amarelo (marca) nos campos do modal — inline style não suporta
@@ -2126,7 +2125,8 @@ const revealObserver = new IntersectionObserver((entries) => {
       + '  <input name="nome" autocomplete="name" placeholder="Nome" required style="width:100%;box-sizing:border-box;padding:11px 12px;margin-bottom:10px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-size:14px;background:rgba(255,255,255,.06);color:#fff;">'
       + '  <input name="email" type="email" autocomplete="email" placeholder="Seu melhor e-mail" required style="width:100%;box-sizing:border-box;padding:11px 12px;margin-bottom:10px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-size:14px;background:rgba(255,255,255,.06);color:#fff;">'
       + '  <input name="telefone" type="tel" autocomplete="tel-national" placeholder="WhatsApp com DDD (ex.: 11998765432)" required style="width:100%;box-sizing:border-box;padding:11px 12px;margin-bottom:10px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-size:14px;background:rgba(255,255,255,.06);color:#fff;">'
-      + '  <input name="site" type="text" autocomplete="url" placeholder="Site da empresa" required style="width:100%;box-sizing:border-box;padding:11px 12px;margin-bottom:10px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-size:14px;background:rgba(255,255,255,.06);color:#fff;">'
+      + '  <select name="faturamento" required class="lan4-servico-select" style="width:100%;box-sizing:border-box;padding:11px 12px;margin-bottom:10px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-size:14px;background-color:rgba(255,255,255,.06);color:#fff;"><option value="" disabled selected style="color:#fff;background:#0d2149;">Faturamento mensal da empresa</option><option value="Até 100k" style="color:#fff;background:#0d2149;">Menos de R$ 100 mil/mês</option><option value="100 - 300k" style="color:#fff;background:#0d2149;">R$ 100 a 300 mil</option><option value="300k - 1M" style="color:#fff;background:#0d2149;">R$ 300 mil a 1 milhão</option><option value="Acima de 1M" style="color:#fff;background:#0d2149;">Acima de R$ 1 milhão</option><option value="Não faturo" style="color:#fff;background:#0d2149;">Ainda não faturo</option></select>'
+      + '  <select name="cargo" required class="lan4-servico-select" style="width:100%;box-sizing:border-box;padding:11px 12px;margin-bottom:10px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-size:14px;background-color:rgba(255,255,255,.06);color:#fff;"><option value="" disabled selected style="color:#fff;background:#0d2149;">Seu cargo</option><option value="Sócio" style="color:#fff;background:#0d2149;">Sócio</option><option value="CEO / Fundador" style="color:#fff;background:#0d2149;">CEO / Fundador</option><option value="Diretor" style="color:#fff;background:#0d2149;">Diretor</option><option value="Gerente" style="color:#fff;background:#0d2149;">Gerente</option><option value="Outro" style="color:#fff;background:#0d2149;">Outro</option></select>'
       + '  <select name="servico_interesse" required class="lan4-servico-select" style="width:100%;box-sizing:border-box;padding:11px 12px;margin-bottom:6px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-size:14px;background-color:rgba(255,255,255,.06);color:#fff;">'
       + '    <option value="" disabled selected style="color:#fff;background:#0d2149;">Qual serviço te interessa?</option>'
       + '    ' + LAN4_SERVICO_OPTIONS_HTML
@@ -2151,7 +2151,7 @@ const revealObserver = new IntersectionObserver((entries) => {
        WhatsApp válido e desiste (Cancelar, clique fora, Esc ou sai da página),
        manda ao RD com identificador 'lan4-whatsapp-click-parcial' (mesmo padrão
        '-parcial' do formulário principal). Só 1x por modal e nunca depois do
-       envio completo. E-mail/site/serviço vão junto se preenchidos. */
+       envio completo. E-mail/faturamento/cargo/serviço vão junto se preenchidos. */
     function enviaParcialWhatsapp() {
       if (enviado || parcialEnviado) return;
       var nome = lan4CampoValor(form, 'nome');
@@ -2159,7 +2159,8 @@ const revealObserver = new IntersectionObserver((entries) => {
       if (!nome || lan4ValidaTelefone(telefone)) return;
       parcialEnviado = true;
       var email = lan4CampoValor(form, 'email');
-      var site = lan4CampoValor(form, 'site');
+      var faturamento = lan4CampoValor(form, 'faturamento');
+      var cargo = lan4CampoValor(form, 'cargo');
       var servico = lan4CampoValor(form, 'servico_interesse');
       var eventId = lan4EventId();
       var payload = Object.assign({
@@ -2169,7 +2170,8 @@ const revealObserver = new IntersectionObserver((entries) => {
         mobile_phone: lan4NormalizePhoneMeta(telefone)
       }, lan4RdUtmPayload(), { cf_event_id: eventId });
       if (email && email.indexOf('@') !== -1) payload.email = email;
-      if (site) payload.site = site;
+      if (faturamento) payload.cf_faturamento_medio_mensal = faturamento;
+      if (cargo) payload.cf_cargo = cargo;
       if (servico) payload.cf_servico_de_interesse = servico;
       lan4EnviaRd(payload, { semRateLimit: true })
         .then(function (r) {
@@ -2185,7 +2187,7 @@ const revealObserver = new IntersectionObserver((entries) => {
 
     function fechaSemEnvio() {
       if (!overlay.parentNode) return;
-      var hadInput = ['nome', 'email', 'telefone', 'site', 'servico_interesse'].some(function (n) { return !!lan4CampoValor(form, n); });
+      var hadInput = ['nome', 'email', 'telefone', 'faturamento', 'cargo', 'servico_interesse'].some(function (n) { return !!lan4CampoValor(form, n); });
       enviaParcialWhatsapp();
       overlay.remove();
       if (!enviado) window.dataLayer.push({ event: 'whatsapp_modal_close', cta_location: ctaLocation, had_input: hadInput });
@@ -2202,14 +2204,16 @@ const revealObserver = new IntersectionObserver((entries) => {
       var nome = lan4CampoValor(form, 'nome');
       var email = lan4CampoValor(form, 'email');
       var telefone = lan4CampoValor(form, 'telefone');
-      var site = lan4CampoValor(form, 'site');
+      var faturamento = lan4CampoValor(form, 'faturamento');
+      var cargo = lan4CampoValor(form, 'cargo');
       var servico = lan4CampoValor(form, 'servico_interesse');
 
       if (!nome) { erroEl.textContent = 'Preencha seu nome.'; return; }
       if (!email || email.indexOf('@') === -1) { erroEl.textContent = 'Preencha um e-mail válido.'; return; }
       var erroTel = lan4ValidaTelefone(telefone);
       if (erroTel) { erroEl.textContent = erroTel; return; }
-      if (!site) { erroEl.textContent = 'Preencha o site da empresa.'; return; }
+      if (!faturamento) { erroEl.textContent = 'Selecione o faturamento mensal.'; return; }
+      if (!cargo) { erroEl.textContent = 'Selecione seu cargo.'; return; }
       if (!servico) { erroEl.textContent = 'Selecione um serviço de interesse.'; return; }
 
       var btn = box.querySelector('#lan4-whatsapp-enviar');
@@ -2217,11 +2221,11 @@ const revealObserver = new IntersectionObserver((entries) => {
       btn.textContent = 'Enviando…';
       parcialEnviado = true; /* envio completo em andamento: o parcial não dispara (ex.: aba do WhatsApp esconde a página) */
 
-      var lead = { nome: nome, email: email, telefone: telefone, site: site, servico: servico };
+      var lead = { nome: nome, email: email, telefone: telefone, faturamento: faturamento, cargo: cargo, servico: servico };
 
       var eventId = lan4EventId();
       var waRef = lan4WaRef();
-      var extrasPayload = Object.assign({ cf_servico_de_interesse: lead.servico, site: lead.site }, lan4RdUtmPayload(),
+      var extrasPayload = Object.assign({ cf_servico_de_interesse: lead.servico, cf_faturamento_medio_mensal: lead.faturamento, cf_cargo: lead.cargo }, lan4RdUtmPayload(),
         { cf_event_id: eventId, cf_wa_ref: waRef });
 
       /* NOVO 2026-10: antes o .then rodava mesmo com 4xx/5xx (fetch só

@@ -37,7 +37,7 @@
   var COOKIE = 'lan4_fv';
   var VISITOR = 'lan4_vid';
   var DAYS90 = 60 * 60 * 24 * 90;
-  var VARIANTS = ['B', 'C', 'D'];
+  var VARIANTS = ['B', 'D']; // C desativada em 11/11/2026 (pior em tudo na análise de 25/10). Cookie 'C' antigo é re-sorteado entre B/D.
 
   window.dataLayer = window.dataLayer || [];
 
@@ -80,9 +80,7 @@
     return h % 99; // 0..98 -> 3 faixas exatas de 33
   }
   function bucket(pct) {
-    if (pct < 33) return 'B';
-    if (pct < 66) return 'C';
-    return 'D';
+    return (pct % 2 === 0) ? 'B' : 'D'; // 50/50 B|D desde 11/11/2026
   }
 
   function resolveVariant() {
@@ -402,7 +400,6 @@
     }
     bar.innerHTML = '<span style="opacity:.7">Variante:</span>' +
       pill('B', 'B · qualif→contato→serviço') +
-      pill('C', 'C · serviço→qualif→contato') +
       pill('D', 'D · 1 etapa');
     document.body.appendChild(bar);
   }
