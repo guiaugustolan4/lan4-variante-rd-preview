@@ -1084,42 +1084,114 @@ function lan4SetupAutoAdvance(form, steps) {
   if (lf) lan4MultiStep(lf, lan4FormId(lf, 'lan4-contato-site'));
 })();
 
-/* ─── Faturamento "Outro" → pop-up com faixas menores (2026-11-25) ──────
-   O form mostra só as faixas a partir do piso do ICP + "Ainda não faturo"
-   + "Outro". "Outro" NÃO é um valor: é o gatilho que abre um pop-up com as
-   faixas menores. A faixa escolhida vira o value do próprio radio "Outro"
-   e o texto do botão passa a mostrar a faixa (marcado em amarelo). Tocar
-   de novo reabre para trocar. Fechar sem escolher volta ao que estava.
-   Marcação: <input type="radio" name="faturamento" value=""
-   data-fat-outro="mensal|anual">. Valor vazio = obrigatório não cumprido,
-   então o autoavanço e a validação seguram até escolher a faixa.
-   Valores precisam existir no campo cf_faturamento_medio_mensal do RD (se
-   não existirem, a rede de segurança do lan4EnviaRd reenvia sem ele). */
-var LAN4_FAT_OUTRO_FAIXAS = {
+/* ─── "Outro" → pop-up com mais opções (2026-11-25) ─────────────────────
+   Faturamento: o form mostra só as faixas a partir do piso do ICP + "Outro"
+   + "Ainda não faturo". Cargo: Sócio, CEO / Fundador, Diretor, Gerente +
+   "Outro". "Outro" NÃO é um valor: é o gatilho que abre um pop-up com as
+   opções extras. A opção escolhida vira o value do próprio radio "Outro" e
+   o texto do botão passa a mostrar a opção (marcado em amarelo). Tocar de
+   novo reabre para trocar. Fechar sem escolher volta ao que estava.
+   Marcação: <input type="radio" name="faturamento|cargo" value=""
+   data-outro="mensal|anual|cargo">. Valor vazio = obrigatório não cumprido,
+   então o autoavanço e a validação seguram até escolher.
+   O modal de WhatsApp (selects) usa o mesmo pop-up via lan4AbrePopupOutro.
+   Os valores precisam existir nos campos cf_faturamento_medio_mensal /
+   cf_cargo do RD (se não existirem, a rede de segurança do lan4EnviaRd
+   reenvia sem o faturamento; cargo novo sem cadastro = 400 → reenvio sem
+   cf_form_*; ver PASSO-A-PASSO-RD). */
+var LAN4_OUTRO_OPCOES = {
   mensal: [['0 - 10k', 'R$ 0 a 10 mil'], ['10 - 25k', 'R$ 10 a 25 mil'], ['25 - 45k', 'R$ 25 a 45 mil'],
            ['45 - 70k', 'R$ 45 a 70 mil'], ['70 - 100k', 'R$ 70 a 100 mil']],
-  anual: [['Até 100k/ano', 'Até R$ 100 mil'], ['100k - 300k/ano', 'R$ 100 a 300 mil'], ['300k - 600k/ano', 'R$ 300 a 600 mil']]
+  anual: [['Até 100k/ano', 'Até R$ 100 mil'], ['100k - 300k/ano', 'R$ 100 a 300 mil'], ['300k - 600k/ano', 'R$ 300 a 600 mil']],
+  cargo: [['Coordenador / Supervisor', 'Coordenador / Supervisor'], ['Analista', 'Analista'],
+          ['Vendedor / Executivo de contas', 'Vendedor / Executivo de contas'], ['SDR / BDR', 'SDR / BDR'],
+          ['Consultor', 'Consultor'], ['Autônomo / Freelancer', 'Autônomo / Freelancer'],
+          ['Assistente / Auxiliar', 'Assistente / Auxiliar'], ['Outro', 'Outro cargo']]
 };
-var LAN4_FAT_OUTRO_TEXTO = 'Escolha a faixa mais próxima da sua empresa. Usamos só para direcionar seu contato para a pessoa certa.';
+var LAN4_OUTRO_TEXTO = {
+  mensal: 'Escolha a faixa mais próxima da sua empresa. Usamos só para direcionar seu contato para a pessoa certa.',
+  anual: 'Escolha a faixa mais próxima da sua empresa. Usamos só para direcionar seu contato para a pessoa certa.',
+  cargo: 'Escolha a opção mais próxima do seu cargo.'
+};
+var LAN4_OUTRO_ARIA = { mensal: 'Faixa de faturamento mensal', anual: 'Faixa de faturamento anual', cargo: 'Cargo' };
 
-(function () {
-  var aberto = null;
-
-  function css() {
-    if (document.getElementById('lan4-fat-outro-css')) return;
+/* lan4AbrePopupOutro(tipo, valorAtual, aoEscolher(valor, texto), aoCancelar())
+   Abre o pop-up (1 por vez). Esc/X/Voltar/clique fora = cancelar. O Esc é
+   capturado na janela e NÃO chega ao modal de WhatsApp que estiver aberto
+   por baixo (senão fecharia os dois). */
+function lan4AbrePopupOutro(tipo, valorAtual, aoEscolher, aoCancelar) {
+  if (document.getElementById('lan4-outro-pop')) return false;
+  var opcoes = LAN4_OUTRO_OPCOES[tipo];
+  if (!opcoes) return false;
+  if (!document.getElementById('lan4-outro-css')) {
     var st = document.createElement('style');
-    st.id = 'lan4-fat-outro-css';
+    st.id = 'lan4-outro-css';
     st.textContent =
-      '#lan4-fat-outro{position:fixed;inset:0;z-index:10002;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box}'
-      + '#lan4-fat-outro .lan4-fo-box{position:relative;width:100%;max-width:min(380px,calc(100vw - 32px));box-sizing:border-box;background:#0A1428;color:#fff;border:1px solid rgba(255,217,0,.25);border-radius:14px;padding:24px 18px 16px;box-shadow:0 20px 60px rgba(0,0,0,.5);max-height:calc(100vh - 32px);overflow:auto}'
-      + '#lan4-fat-outro .lan4-fo-texto{margin:0 26px 16px 0;font-size:.95rem;line-height:1.5;color:rgba(255,255,255,.85)}'
-      + '#lan4-fat-outro .lf-group[role="radiogroup"]{margin-bottom:12px}'
-      + '#lan4-fat-outro .lan4-fo-x{position:absolute;top:8px;right:8px;width:36px;height:36px;border:0;background:none;color:rgba(255,255,255,.6);font-size:22px;line-height:1;cursor:pointer;border-radius:8px}'
-      + '#lan4-fat-outro .lan4-fo-x:hover{color:#fff}'
-      + '#lan4-fat-outro .lan4-fo-nav{display:flex;justify-content:center}';
+      '#lan4-outro-pop{position:fixed;inset:0;z-index:10003;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box}'
+      + '#lan4-outro-pop .lan4-op-box{position:relative;width:100%;max-width:min(380px,calc(100vw - 32px));box-sizing:border-box;background:#0A1428;color:#fff;border:1px solid rgba(255,217,0,.25);border-radius:14px;padding:24px 18px 16px;box-shadow:0 20px 60px rgba(0,0,0,.5);max-height:calc(100vh - 32px);overflow:auto;font-family:inherit}'
+      + '#lan4-outro-pop .lan4-op-texto{margin:0 26px 16px 0;font-size:.95rem;line-height:1.5;color:rgba(255,255,255,.85)}'
+      + '#lan4-outro-pop .lf-options{display:grid;gap:8px}'
+      + '#lan4-outro-pop .lf-group[role="radiogroup"]{margin-bottom:12px}'
+      + '#lan4-outro-pop .lf-opt{position:relative;display:block;cursor:pointer}'
+      + '#lan4-outro-pop .lf-opt input{position:absolute;opacity:0;pointer-events:none}'
+      + '#lan4-outro-pop .lf-opt span{display:flex;align-items:center;justify-content:flex-start;text-align:left;min-height:44px;padding:12px 16px;border-radius:10px;background:#E9EBEF;color:#1a1f2c;font-size:14.5px;line-height:1.25;border:1.5px solid transparent;box-sizing:border-box}'
+      + '#lan4-outro-pop .lf-opt input:checked+span{background:#FFD900;border-color:#FFD900;color:#0a1628;font-weight:700}'
+      + '#lan4-outro-pop .lf-opt input:focus-visible+span{border-color:#154CC4}'
+      + '#lan4-outro-pop .lan4-op-x{position:absolute;top:8px;right:8px;width:36px;height:36px;border:0;background:none;color:rgba(255,255,255,.6);font-size:22px;line-height:1;cursor:pointer;border-radius:8px}'
+      + '#lan4-outro-pop .lan4-op-x:hover{color:#fff}'
+      + '#lan4-outro-pop .lan4-op-nav{display:flex;justify-content:center}'
+      + '#lan4-outro-pop .lan4-op-voltar{background:none;border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.85);border-radius:10px;padding:9px 14px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}';
     document.head.appendChild(st);
   }
+  var ov = document.createElement('div');
+  ov.id = 'lan4-outro-pop';
+  var box = document.createElement('div');
+  box.className = 'lan4-op-box';
+  box.setAttribute('role', 'dialog');
+  box.setAttribute('aria-modal', 'true');
+  box.setAttribute('aria-label', LAN4_OUTRO_ARIA[tipo] || 'Opções');
+  var html = '<button type="button" class="lan4-op-x" aria-label="Fechar">×</button>'
+    + '<p class="lan4-op-texto">' + LAN4_OUTRO_TEXTO[tipo] + '</p>'
+    + '<div class="lf-group" role="radiogroup"><div class="lf-options">';
+  opcoes.forEach(function (o) {
+    html += '<label class="lf-opt"><input type="radio" name="lan4_outro_opcao" value="' + o[0] + '"'
+      + (o[0] === valorAtual ? ' checked' : '') + '><span>' + o[1] + '</span></label>';
+  });
+  html += '</div></div><div class="lan4-op-nav"><button type="button" class="lan4-op-voltar">Voltar</button></div>';
+  box.innerHTML = html;
+  ov.appendChild(box);
+  document.body.appendChild(ov);
 
+  function some() {
+    if (ov.parentNode) ov.parentNode.removeChild(ov);
+    window.removeEventListener('keydown', esc, true);
+  }
+  function cancela() { some(); if (aoCancelar) aoCancelar(); }
+  function esc(e) {
+    if (e.key !== 'Escape') return;
+    e.preventDefault(); e.stopPropagation();
+    if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+    cancela();
+  }
+  window.addEventListener('keydown', esc, true);
+  box.querySelector('.lan4-op-x').addEventListener('click', cancela);
+  box.querySelector('.lan4-op-voltar').addEventListener('click', cancela);
+  ov.addEventListener('click', function (e) { if (e.target === ov) cancela(); });
+  box.querySelectorAll('input[name="lan4_outro_opcao"]').forEach(function (r) {
+    r.addEventListener('change', function () {
+      var o = opcoes.filter(function (x) { return x[0] === r.value; })[0];
+      if (!o) return;
+      some();
+      aoEscolher(o[0], o[1]);
+    });
+  });
+  var foco = box.querySelector('input:checked') || box.querySelector('input[type="radio"]');
+  try { foco.focus({ preventScroll: true }); } catch (e) {}
+  return true;
+}
+
+/* Radios "Outro" dos formulários (#lf e LPs) */
+(function () {
   function rotulo(input) {
     var lab = input.closest('.lf-opt');
     return lab ? lab.querySelector('span') : null;
@@ -1132,108 +1204,59 @@ var LAN4_FAT_OUTRO_TEXTO = 'Escolha a faixa mais próxima da sua empresa. Usamos
   function grupoDe(input) {
     return input.form || input.closest('.lf-step') || document;
   }
-
-  function abre(input) {
-    if (aberto) return;
-    css();
-    var tipo = input.getAttribute('data-fat-outro') === 'anual' ? 'anual' : 'mensal';
-    var faixas = LAN4_FAT_OUTRO_FAIXAS[tipo];
+  function abreDoRadio(input) {
     var valorAntes = input.value;
-    var anterior = input.lan4FatAnterior || null; /* opção comum marcada antes do clique no Outro */
-    input.lan4FatAnterior = null;
-
-    var ov = document.createElement('div');
-    ov.id = 'lan4-fat-outro';
-    var box = document.createElement('div');
-    box.className = 'lan4-fo-box';
-    box.setAttribute('role', 'dialog');
-    box.setAttribute('aria-modal', 'true');
-    box.setAttribute('aria-label', tipo === 'anual' ? 'Faixa de faturamento anual' : 'Faixa de faturamento mensal');
-    var html = '<button type="button" class="lan4-fo-x" aria-label="Fechar">×</button>'
-      + '<p class="lan4-fo-texto">' + LAN4_FAT_OUTRO_TEXTO + '</p>'
-      + '<div class="lf-group" role="radiogroup"><div class="lf-options">';
-    faixas.forEach(function (f) {
-      html += '<label class="lf-opt"><input type="radio" name="lan4_fat_outro_faixa" value="' + f[0] + '"'
-        + (f[0] === valorAntes ? ' checked' : '') + '><span>' + f[1] + '</span></label>';
-    });
-    html += '</div></div><div class="lan4-fo-nav"><button type="button" class="lf-back">Voltar</button></div>';
-    box.innerHTML = html;
-    ov.appendChild(box);
-    document.body.appendChild(ov);
-    aberto = ov;
-
-    function some() {
-      if (ov.parentNode) ov.parentNode.removeChild(ov);
-      aberto = null;
-      document.removeEventListener('keydown', esc, true);
-    }
-    function cancela() {
-      some();
-      if (valorAntes) { input.checked = true; }            /* já tinha faixa: mantém */
-      else if (anterior && anterior.form === input.form) { anterior.checked = true; } /* volta à opção anterior */
-      else { input.checked = false; }
+    var anterior = input.lan4OutroAnterior || null; /* opção comum marcada antes do clique no Outro */
+    input.lan4OutroAnterior = null;
+    lan4AbrePopupOutro(input.getAttribute('data-outro'), valorAntes, function (valor, texto) {
+      input.value = valor;
+      var sp = rotulo(input);
+      if (sp) sp.textContent = texto;
+      /* clique programático: dispara os MESMOS listeners do clique humano
+         (autoavanço da etapa, form_substep) já com o valor escolhido */
+      input.lan4OutroSilencio = true;
+      input.checked = false;
+      input.click();
+      input.lan4OutroSilencio = false;
       try { input.focus({ preventScroll: true }); } catch (e) {}
-    }
-    function esc(e) { if (e.key === 'Escape') { e.preventDefault(); cancela(); } }
-
-    box.querySelector('.lan4-fo-x').addEventListener('click', cancela);
-    box.querySelector('.lf-back').addEventListener('click', cancela);
-    ov.addEventListener('click', function (e) { if (e.target === ov) cancela(); });
-    document.addEventListener('keydown', esc, true);
-
-    box.querySelectorAll('input[name="lan4_fat_outro_faixa"]').forEach(function (r) {
-      r.addEventListener('change', function () {
-        var f = faixas.filter(function (x) { return x[0] === r.value; })[0];
-        if (!f) return;
-        some();
-        input.value = f[0];
-        var sp = rotulo(input);
-        if (sp) sp.textContent = f[1];
-        /* clique programático: dispara os MESMOS listeners do clique humano
-           (autoavanço da etapa, form_substep) já com o valor da faixa */
-        input.lan4FatSilencio = true;
-        input.checked = false;
-        input.click();
-        input.lan4FatSilencio = false;
-        try { input.focus({ preventScroll: true }); } catch (e) {}
-      });
+    }, function () {
+      if (valorAntes) input.checked = true;                                       /* já tinha escolha: mantém */
+      else if (anterior && anterior.form === input.form) anterior.checked = true; /* volta à opção anterior */
+      else input.checked = false;
+      try { input.focus({ preventScroll: true }); } catch (e) {}
     });
-    var foco = box.querySelector('input:checked') || box.querySelector('input[type="radio"]');
-    try { foco.focus({ preventScroll: true }); } catch (e) {}
+  }
+  function gatilho(inp) {
+    if (!inp || inp.lan4OutroSilencio || document.getElementById('lan4-outro-pop')) return;
+    setTimeout(function () { if (!document.getElementById('lan4-outro-pop')) abreDoRadio(inp); }, 0);
   }
 
-  /* Guarda a opção comum marcada ANTES do clique no Outro (para o cancelar
-     voltar a ela) e, se a pessoa troca para uma opção comum, o Outro volta
-     a ser só "Outro". */
+  /* Guarda a opção comum marcada ANTES do clique no Outro (o cancelar volta a ela) */
   document.addEventListener('pointerdown', function (e) {
     var lab = e.target && e.target.closest && e.target.closest('label.lf-opt');
-    var inp = lab && lab.querySelector('input[data-fat-outro]');
+    var inp = lab && lab.querySelector('input[data-outro]');
     if (!inp) return;
-    var marcado = grupoDe(inp).querySelector('input[name="faturamento"]:checked');
-    inp.lan4FatAnterior = (marcado && marcado !== inp) ? marcado : null;
+    var marcado = grupoDe(inp).querySelector('input[name="' + inp.name + '"]:checked');
+    inp.lan4OutroAnterior = (marcado && marcado !== inp) ? marcado : null;
   }, true);
-
-  function gatilho(inp) {
-    if (!inp || inp.lan4FatSilencio || aberto) return;
-    setTimeout(function () { if (!aberto) abre(inp); }, 0);
-  }
   document.addEventListener('click', function (e) {
     var t = e.target;
     if (!t || !t.closest) return;
     var lab = t.closest('label.lf-opt');
-    var inp = lab ? lab.querySelector('input[data-fat-outro]') : null;
-    if (!inp && t.matches && t.matches('input[data-fat-outro]')) inp = t;
+    var inp = lab ? lab.querySelector('input[data-outro]') : null;
+    if (!inp && t.matches && t.matches('input[data-outro]')) inp = t;
     gatilho(inp);
   }, true);
+  /* Troca para uma opção comum: o Outro do MESMO grupo volta a ser só "Outro" */
   document.addEventListener('change', function (e) {
     var t = e.target;
-    if (!t || t.name !== 'faturamento' || t.type !== 'radio') return;
-    if (t.hasAttribute('data-fat-outro')) { if (!t.value) gatilho(t); return; } /* teclado (setas) */
-    grupoDe(t).querySelectorAll('input[data-fat-outro]').forEach(limpa);
+    if (!t || t.type !== 'radio' || !t.name || t.name === 'lan4_outro_opcao') return;
+    if (t.hasAttribute('data-outro')) { if (!t.value) gatilho(t); return; } /* teclado (setas) */
+    grupoDe(t).querySelectorAll('input[data-outro][name="' + t.name + '"]').forEach(limpa);
   }, true);
   document.addEventListener('reset', function (e) {
     var f = e.target;
-    if (f && f.querySelectorAll) f.querySelectorAll('input[data-fat-outro]').forEach(limpa);
+    if (f && f.querySelectorAll) f.querySelectorAll('input[data-outro]').forEach(limpa);
   }, true);
 })();
 
@@ -2292,9 +2315,8 @@ const revealObserver = new IntersectionObserver((entries) => {
       + '  <input name="nome" autocomplete="name" placeholder="Nome" required style="width:100%;box-sizing:border-box;padding:11px 12px;margin-bottom:10px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-size:14px;background:rgba(255,255,255,.06);color:#fff;">'
       + '  <input name="email" type="email" autocomplete="email" placeholder="Seu melhor e-mail" required style="width:100%;box-sizing:border-box;padding:11px 12px;margin-bottom:10px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-size:14px;background:rgba(255,255,255,.06);color:#fff;">'
       + '  <input name="telefone" type="tel" autocomplete="tel-national" placeholder="WhatsApp com DDD (ex.: 11998765432)" required style="width:100%;box-sizing:border-box;padding:11px 12px;margin-bottom:10px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-size:14px;background:rgba(255,255,255,.06);color:#fff;">'
-      + '  <select name="faturamento" required class="lan4-servico-select" style="width:100%;box-sizing:border-box;padding:11px 12px;margin-bottom:10px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-size:14px;background-color:rgba(255,255,255,.06);color:#fff;"><option value="" disabled selected style="color:#fff;background:#0d2149;">Faturamento mensal da empresa</option><option value="100 - 300k" style="color:#fff;background:#0d2149;">R$ 100 a 300 mil</option><option value="300k - 1M" style="color:#fff;background:#0d2149;">R$ 300 mil a 1 milhão</option><option value="Acima de 1M" style="color:#fff;background:#0d2149;">Acima de R$ 1 milhão</option><option value="Não faturo" style="color:#fff;background:#0d2149;">Ainda não faturo</option><option value="__outro" style="color:#fff;background:#0d2149;">Outro</option></select>'
-      + '  <select name="faturamento_faixa" class="lan4-servico-select" style="display:none;width:100%;box-sizing:border-box;padding:11px 12px;margin-bottom:10px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-size:14px;background-color:rgba(255,255,255,.06);color:#fff;"><option value="" disabled selected style="color:#fff;background:#0d2149;">Selecione a faixa</option><option value="0 - 10k" style="color:#fff;background:#0d2149;">R$ 0 a 10 mil</option><option value="10 - 25k" style="color:#fff;background:#0d2149;">R$ 10 a 25 mil</option><option value="25 - 45k" style="color:#fff;background:#0d2149;">R$ 25 a 45 mil</option><option value="45 - 70k" style="color:#fff;background:#0d2149;">R$ 45 a 70 mil</option><option value="70 - 100k" style="color:#fff;background:#0d2149;">R$ 70 a 100 mil</option></select>'
-      + '  <select name="cargo" required class="lan4-servico-select" style="width:100%;box-sizing:border-box;padding:11px 12px;margin-bottom:10px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-size:14px;background-color:rgba(255,255,255,.06);color:#fff;"><option value="" disabled selected style="color:#fff;background:#0d2149;">Seu cargo</option><option value="Sócio" style="color:#fff;background:#0d2149;">Sócio</option><option value="CEO / Fundador" style="color:#fff;background:#0d2149;">CEO / Fundador</option><option value="Diretor" style="color:#fff;background:#0d2149;">Diretor</option><option value="Gerente" style="color:#fff;background:#0d2149;">Gerente</option><option value="Outro" style="color:#fff;background:#0d2149;">Outro</option></select>'
+      + '  <select name="faturamento" required class="lan4-servico-select" style="width:100%;box-sizing:border-box;padding:11px 12px;margin-bottom:10px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-size:14px;background-color:rgba(255,255,255,.06);color:#fff;"><option value="" disabled selected style="color:#fff;background:#0d2149;">Faturamento mensal da empresa</option><option value="100 - 300k" style="color:#fff;background:#0d2149;">R$ 100 a 300 mil</option><option value="300k - 500k" style="color:#fff;background:#0d2149;">R$ 300 a 500 mil</option><option value="500k - 1M" style="color:#fff;background:#0d2149;">R$ 500 mil a 1 milhão</option><option value="Acima de 1M" style="color:#fff;background:#0d2149;">Acima de R$ 1 milhão</option><option value="__outro" style="color:#fff;background:#0d2149;">Outro</option><option value="Não faturo" style="color:#fff;background:#0d2149;">Ainda não faturo</option></select>'
+      + '  <select name="cargo" required class="lan4-servico-select" style="width:100%;box-sizing:border-box;padding:11px 12px;margin-bottom:10px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-size:14px;background-color:rgba(255,255,255,.06);color:#fff;"><option value="" disabled selected style="color:#fff;background:#0d2149;">Seu cargo</option><option value="Sócio" style="color:#fff;background:#0d2149;">Sócio</option><option value="CEO / Fundador" style="color:#fff;background:#0d2149;">CEO / Fundador</option><option value="Diretor" style="color:#fff;background:#0d2149;">Diretor</option><option value="Gerente" style="color:#fff;background:#0d2149;">Gerente</option><option value="__outro" style="color:#fff;background:#0d2149;">Outro</option></select>'
       + '  <select name="servico_interesse" required class="lan4-servico-select" style="width:100%;box-sizing:border-box;padding:11px 12px;margin-bottom:6px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-size:14px;background-color:rgba(255,255,255,.06);color:#fff;">'
       + '    <option value="" disabled selected style="color:#fff;background:#0d2149;">Qual serviço te interessa?</option>'
       + '    ' + LAN4_SERVICO_OPTIONS_HTML
@@ -2310,18 +2332,36 @@ const revealObserver = new IntersectionObserver((entries) => {
     var form = box.querySelector('#lan4-whatsapp-form');
     var erroEl = box.querySelector('#lan4-whatsapp-erro');
 
-    /* 2026-11-25: "Outro" no faturamento mostra a 2ª lista (faixas abaixo de
-       R$ 100 mil). O valor enviado é sempre a faixa, nunca "__outro". */
-    var fatSel = form.querySelector('[name="faturamento"]');
-    var fatFaixa = form.querySelector('[name="faturamento_faixa"]');
-    fatSel.addEventListener('change', function () {
-      var outro = fatSel.value === '__outro';
-      fatFaixa.style.display = outro ? '' : 'none';
-      if (outro) { try { fatFaixa.focus(); } catch (e) {} } else { fatFaixa.selectedIndex = 0; }
-    });
-    function fatModal() {
-      var v = lan4CampoValor(form, 'faturamento');
-      return v === '__outro' ? lan4CampoValor(form, 'faturamento_faixa') : v;
+    /* 2026-11-25: "Outro" em faturamento e cargo abre o MESMO pop-up do
+       formulário (lan4AbrePopupOutro), por cima deste modal. A opção escolhida
+       entra no select como opção extra (selecionada): o valor enviado é sempre
+       a opção, nunca "__outro". Cancelar volta ao que estava. */
+    function ligaOutro(nome, tipo) {
+      var sel = form.querySelector('[name="' + nome + '"]');
+      var outroOpt = sel.querySelector('option[value="__outro"]');
+      var anterior = sel.value;
+      var extra = null;
+      sel.addEventListener('change', function () {
+        if (sel.value !== '__outro') { anterior = sel.value; return; }
+        var abriu = lan4AbrePopupOutro(tipo, extra ? extra.value : '', function (valor, texto) {
+          if (!extra) {
+            extra = document.createElement('option');
+            extra.style.cssText = 'color:#fff;background:#0d2149;';
+            sel.insertBefore(extra, outroOpt);
+          }
+          extra.value = valor;
+          extra.textContent = texto;
+          sel.value = valor;
+          anterior = valor;
+        }, function () { sel.value = anterior; });
+        if (!abriu) sel.value = anterior;
+      });
+    }
+    ligaOutro('faturamento', 'mensal');
+    ligaOutro('cargo', 'cargo');
+    function valorModal(nome) {
+      var v = lan4CampoValor(form, nome);
+      return v === '__outro' ? '' : v;
     }
 
     var ctaLocation = (opcoes && opcoes.cta_location) || 'whatsapp_float';
@@ -2341,8 +2381,8 @@ const revealObserver = new IntersectionObserver((entries) => {
       if (!nome || lan4ValidaTelefone(telefone)) return;
       parcialEnviado = true;
       var email = lan4CampoValor(form, 'email');
-      var faturamento = fatModal();
-      var cargo = lan4CampoValor(form, 'cargo');
+      var faturamento = valorModal('faturamento');
+      var cargo = valorModal('cargo');
       var servico = lan4CampoValor(form, 'servico_interesse');
       var eventId = lan4EventId();
       var payload = Object.assign({
@@ -2386,8 +2426,8 @@ const revealObserver = new IntersectionObserver((entries) => {
       var nome = lan4CampoValor(form, 'nome');
       var email = lan4CampoValor(form, 'email');
       var telefone = lan4CampoValor(form, 'telefone');
-      var faturamento = fatModal();
-      var cargo = lan4CampoValor(form, 'cargo');
+      var faturamento = valorModal('faturamento');
+      var cargo = valorModal('cargo');
       var servico = lan4CampoValor(form, 'servico_interesse');
 
       if (!nome) { erroEl.textContent = 'Preencha seu nome.'; return; }

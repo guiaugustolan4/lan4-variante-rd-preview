@@ -32,7 +32,14 @@
    "Diretor",
    "Gerente",
    "Outro",
-   "CEO / Fundador"
+   "CEO / Fundador",
+   "Coordenador / Supervisor",
+   "Analista",
+   "Vendedor / Executivo de contas",
+   "SDR / BDR",
+   "Consultor",
+   "Autônomo / Freelancer",
+   "Assistente / Auxiliar"
   ],
   "cf_mql": [
    "Sim"
@@ -58,7 +65,9 @@
    "Acima de 12M/ano",
    "Até 100k/ano",
    "100k - 300k/ano",
-   "300k - 600k/ano"
+   "300k - 600k/ano",
+   "300k - 500k",
+   "500k - 1M"
   ],
   "cf_nosette_tipo_de_servico": [],
   "cf_form_variant": [],
