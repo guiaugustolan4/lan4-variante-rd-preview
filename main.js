@@ -1097,8 +1097,7 @@ function lan4SetupAutoAdvance(form, steps) {
    O modal de WhatsApp (selects) usa o mesmo pop-up via lan4AbrePopupOutro.
    Os valores precisam existir nos campos cf_faturamento_medio_mensal /
    cf_cargo do RD (se não existirem, a rede de segurança do lan4EnviaRd
-   reenvia sem o faturamento; cargo novo sem cadastro = 400 → reenvio sem
-   cf_form_*; ver PASSO-A-PASSO-RD). */
+   reenvia sem faturamento e cargo; ver PASSO-A-PASSO-RD). */
 var LAN4_OUTRO_OPCOES = {
   mensal: [['0 - 10k', 'R$ 0 a 10 mil'], ['10 - 25k', 'R$ 10 a 25 mil'], ['25 - 45k', 'R$ 25 a 45 mil'],
            ['45 - 70k', 'R$ 45 a 70 mil'], ['70 - 100k', 'R$ 70 a 100 mil']],
@@ -1177,13 +1176,19 @@ function lan4AbrePopupOutro(tipo, valorAtual, aoEscolher, aoCancelar) {
   box.querySelector('.lan4-op-x').addEventListener('click', cancela);
   box.querySelector('.lan4-op-voltar').addEventListener('click', cancela);
   ov.addEventListener('click', function (e) { if (e.target === ov) cancela(); });
+  var feito = false;
   box.querySelectorAll('input[name="lan4_outro_opcao"]').forEach(function (r) {
-    r.addEventListener('change', function () {
+    function escolhe() {
+      if (feito || !r.checked) return;
       var o = opcoes.filter(function (x) { return x[0] === r.value; })[0];
       if (!o) return;
+      feito = true;
       some();
       aoEscolher(o[0], o[1]);
-    });
+    }
+    r.addEventListener('change', escolhe);
+    /* tocar de novo na opção que já estava marcada não gera 'change': confirma pelo clique */
+    r.addEventListener('click', escolhe);
   });
   var foco = box.querySelector('input:checked') || box.querySelector('input[type="radio"]');
   try { foco.focus({ preventScroll: true }); } catch (e) {}
@@ -1386,9 +1391,9 @@ function lan4EnviaRd(payload, opts) {
      tiver cf_rastreamento_ids/cf_rastreamento_origem (que podem ainda não
      existir na conta), reenvia 1x SEM eles — o lead nunca se perde por causa
      de campo de atribuição (o event_id do dataLayer segue). */
-  /* 2º nível (2026-11-25): se ainda assim o RD recusar (4xx) e houver
-     faturamento, reenvia sem ele — cobre faixa nova de faturamento ainda não
-     cadastrada como opção do campo cf_faturamento_medio_mensal no RD. */
+  /* 2º nível (2026-11-25): se ainda assim o RD recusar (400) e houver
+     faturamento/cargo, reenvia sem os dois — cobre opção nova ainda não
+     cadastrada nos campos cf_faturamento_medio_mensal / cf_cargo do RD. */
   function recusou(r) { return !(r.ok || r.status < 400 || r.status >= 500); }
   return post(payload).then(function (r) {
     if (!recusou(r)) return r;
@@ -1402,11 +1407,12 @@ function lan4EnviaRd(payload, opts) {
     }
     return tentativa.then(function (r2) {
       /* só 400 (opção inválida); 429/401 etc. não justificam outro POST */
-      if (r2.status !== 400 || !limpo.cf_faturamento_medio_mensal) return r2;
-      var semFat = Object.assign({}, limpo);
-      delete semFat.cf_faturamento_medio_mensal;
-      console.warn('[RD Station] ' + r2.status + ' — reenviando sem faturamento. Confira se a opção "' + limpo.cf_faturamento_medio_mensal + '" existe no campo do RD.');
-      return post(semFat);
+      if (r2.status !== 400 || !(limpo.cf_faturamento_medio_mensal || limpo.cf_cargo)) return r2;
+      var semOpcoes = Object.assign({}, limpo);
+      delete semOpcoes.cf_faturamento_medio_mensal;
+      delete semOpcoes.cf_cargo;
+      console.warn('[RD Station] ' + r2.status + ' — reenviando sem faturamento/cargo. Confira se "' + (limpo.cf_faturamento_medio_mensal || '') + '" e "' + (limpo.cf_cargo || '') + '" existem nos campos do RD.');
+      return post(semOpcoes);
     });
   });
 }
