@@ -1378,7 +1378,8 @@ function lan4EnviaRd(payload, opts) {
       tentativa = post(limpo);
     }
     return tentativa.then(function (r2) {
-      if (!recusou(r2) || !limpo.cf_faturamento_medio_mensal) return r2;
+      /* só 400 (opção inválida); 429/401 etc. não justificam outro POST */
+      if (r2.status !== 400 || !limpo.cf_faturamento_medio_mensal) return r2;
       var semFat = Object.assign({}, limpo);
       delete semFat.cf_faturamento_medio_mensal;
       console.warn('[RD Station] ' + r2.status + ' — reenviando sem faturamento. Confira se a opção "' + limpo.cf_faturamento_medio_mensal + '" existe no campo do RD.');
