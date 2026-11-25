@@ -28,7 +28,10 @@
        <fieldset class="lf-step" data-fv="D" data-step-name="contato" ...>   (única, tudo dentro)
      Fieldsets sem data-fv ficam intactos.
 
-   Override QA:  ?fv=B  |  ?fv=C  |  ?fv=D  (não grava cookie)
+   2026-11-25: variante E = mesmas 3 etapas da B, faturamento ANUAL
+   (fieldsets data-fv="E" + barra data-fv-progress="E"). Split B|D|E 33/33/33.
+
+   Override QA:  ?fv=B  |  ?fv=D  |  ?fv=E  (não grava cookie)
    Preview (seletor visível):  window.LAN4_AB_PREVIEW = true
    ───────────────────────────────────────────────────────────────────── */
 (function () {
@@ -37,7 +40,8 @@
   var COOKIE = 'lan4_fv';
   var VISITOR = 'lan4_vid';
   var DAYS90 = 60 * 60 * 24 * 90;
-  var VARIANTS = ['B', 'D']; // C desativada em 11/11/2026 (pior em tudo na análise de 25/10). Cookie 'C' antigo é re-sorteado entre B/D.
+  var VARIANTS = ['B', 'D', 'E']; // C desativada em 11/11/2026. E (= B com faturamento ANUAL) entrou em 25/11/2026.
+  // Cookie B/D existente continua no mesmo braço; cookie 'C' antigo e visitante novo são sorteados entre B/D/E.
 
   window.dataLayer = window.dataLayer || [];
 
@@ -80,7 +84,9 @@
     return h % 99; // 0..98 -> 3 faixas exatas de 33
   }
   function bucket(pct) {
-    return (pct % 2 === 0) ? 'B' : 'D'; // 50/50 B|D desde 11/11/2026
+    /* 33/33/33 B|D|E desde 25/11/2026 (pct vai de 0 a 98: 3 faixas exatas). Antes: 50/50 B|D. */
+    var r = pct % 3;
+    return r === 0 ? 'B' : (r === 1 ? 'D' : 'E');
   }
 
   function resolveVariant() {
@@ -400,7 +406,8 @@
     }
     bar.innerHTML = '<span style="opacity:.7">Variante:</span>' +
       pill('B', 'B · qualif→contato→serviço') +
-      pill('D', 'D · 1 etapa');
+      pill('D', 'D · 1 etapa') +
+      pill('E', 'E · anual (3 etapas)');
     document.body.appendChild(bar);
   }
 })();

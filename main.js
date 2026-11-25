@@ -1084,6 +1084,159 @@ function lan4SetupAutoAdvance(form, steps) {
   if (lf) lan4MultiStep(lf, lan4FormId(lf, 'lan4-contato-site'));
 })();
 
+/* ─── Faturamento "Outro" → pop-up com faixas menores (2026-11-25) ──────
+   O form mostra só as faixas a partir do piso do ICP + "Ainda não faturo"
+   + "Outro". "Outro" NÃO é um valor: é o gatilho que abre um pop-up com as
+   faixas menores. A faixa escolhida vira o value do próprio radio "Outro"
+   e o texto do botão passa a mostrar a faixa (marcado em amarelo). Tocar
+   de novo reabre para trocar. Fechar sem escolher volta ao que estava.
+   Marcação: <input type="radio" name="faturamento" value=""
+   data-fat-outro="mensal|anual">. Valor vazio = obrigatório não cumprido,
+   então o autoavanço e a validação seguram até escolher a faixa.
+   Valores precisam existir no campo cf_faturamento_medio_mensal do RD (se
+   não existirem, a rede de segurança do lan4EnviaRd reenvia sem ele). */
+var LAN4_FAT_OUTRO_FAIXAS = {
+  mensal: [['0 - 10k', 'R$ 0 a 10 mil'], ['10 - 25k', 'R$ 10 a 25 mil'], ['25 - 45k', 'R$ 25 a 45 mil'],
+           ['45 - 70k', 'R$ 45 a 70 mil'], ['70 - 100k', 'R$ 70 a 100 mil']],
+  anual: [['Até 100k/ano', 'Até R$ 100 mil'], ['100k - 300k/ano', 'R$ 100 a 300 mil'], ['300k - 600k/ano', 'R$ 300 a 600 mil']]
+};
+var LAN4_FAT_OUTRO_TEXTO = 'Escolha a faixa mais próxima da sua empresa. Usamos só para direcionar seu contato para a pessoa certa.';
+
+(function () {
+  var aberto = null;
+
+  function css() {
+    if (document.getElementById('lan4-fat-outro-css')) return;
+    var st = document.createElement('style');
+    st.id = 'lan4-fat-outro-css';
+    st.textContent =
+      '#lan4-fat-outro{position:fixed;inset:0;z-index:10002;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box}'
+      + '#lan4-fat-outro .lan4-fo-box{position:relative;width:100%;max-width:min(380px,calc(100vw - 32px));box-sizing:border-box;background:#0A1428;color:#fff;border:1px solid rgba(255,217,0,.25);border-radius:14px;padding:24px 18px 16px;box-shadow:0 20px 60px rgba(0,0,0,.5);max-height:calc(100vh - 32px);overflow:auto}'
+      + '#lan4-fat-outro .lan4-fo-texto{margin:0 26px 16px 0;font-size:.95rem;line-height:1.5;color:rgba(255,255,255,.85)}'
+      + '#lan4-fat-outro .lf-group[role="radiogroup"]{margin-bottom:12px}'
+      + '#lan4-fat-outro .lan4-fo-x{position:absolute;top:8px;right:8px;width:36px;height:36px;border:0;background:none;color:rgba(255,255,255,.6);font-size:22px;line-height:1;cursor:pointer;border-radius:8px}'
+      + '#lan4-fat-outro .lan4-fo-x:hover{color:#fff}'
+      + '#lan4-fat-outro .lan4-fo-nav{display:flex;justify-content:center}';
+    document.head.appendChild(st);
+  }
+
+  function rotulo(input) {
+    var lab = input.closest('.lf-opt');
+    return lab ? lab.querySelector('span') : null;
+  }
+  function limpa(input) {
+    input.value = '';
+    var sp = rotulo(input);
+    if (sp) sp.textContent = 'Outro';
+  }
+  function grupoDe(input) {
+    return input.form || input.closest('.lf-step') || document;
+  }
+
+  function abre(input) {
+    if (aberto) return;
+    css();
+    var tipo = input.getAttribute('data-fat-outro') === 'anual' ? 'anual' : 'mensal';
+    var faixas = LAN4_FAT_OUTRO_FAIXAS[tipo];
+    var valorAntes = input.value;
+    var anterior = input.lan4FatAnterior || null; /* opção comum marcada antes do clique no Outro */
+    input.lan4FatAnterior = null;
+
+    var ov = document.createElement('div');
+    ov.id = 'lan4-fat-outro';
+    var box = document.createElement('div');
+    box.className = 'lan4-fo-box';
+    box.setAttribute('role', 'dialog');
+    box.setAttribute('aria-modal', 'true');
+    box.setAttribute('aria-label', tipo === 'anual' ? 'Faixa de faturamento anual' : 'Faixa de faturamento mensal');
+    var html = '<button type="button" class="lan4-fo-x" aria-label="Fechar">×</button>'
+      + '<p class="lan4-fo-texto">' + LAN4_FAT_OUTRO_TEXTO + '</p>'
+      + '<div class="lf-group" role="radiogroup"><div class="lf-options">';
+    faixas.forEach(function (f) {
+      html += '<label class="lf-opt"><input type="radio" name="lan4_fat_outro_faixa" value="' + f[0] + '"'
+        + (f[0] === valorAntes ? ' checked' : '') + '><span>' + f[1] + '</span></label>';
+    });
+    html += '</div></div><div class="lan4-fo-nav"><button type="button" class="lf-back">Voltar</button></div>';
+    box.innerHTML = html;
+    ov.appendChild(box);
+    document.body.appendChild(ov);
+    aberto = ov;
+
+    function some() {
+      if (ov.parentNode) ov.parentNode.removeChild(ov);
+      aberto = null;
+      document.removeEventListener('keydown', esc, true);
+    }
+    function cancela() {
+      some();
+      if (valorAntes) { input.checked = true; }            /* já tinha faixa: mantém */
+      else if (anterior && anterior.form === input.form) { anterior.checked = true; } /* volta à opção anterior */
+      else { input.checked = false; }
+      try { input.focus({ preventScroll: true }); } catch (e) {}
+    }
+    function esc(e) { if (e.key === 'Escape') { e.preventDefault(); cancela(); } }
+
+    box.querySelector('.lan4-fo-x').addEventListener('click', cancela);
+    box.querySelector('.lf-back').addEventListener('click', cancela);
+    ov.addEventListener('click', function (e) { if (e.target === ov) cancela(); });
+    document.addEventListener('keydown', esc, true);
+
+    box.querySelectorAll('input[name="lan4_fat_outro_faixa"]').forEach(function (r) {
+      r.addEventListener('change', function () {
+        var f = faixas.filter(function (x) { return x[0] === r.value; })[0];
+        if (!f) return;
+        some();
+        input.value = f[0];
+        var sp = rotulo(input);
+        if (sp) sp.textContent = f[1];
+        /* clique programático: dispara os MESMOS listeners do clique humano
+           (autoavanço da etapa, form_substep) já com o valor da faixa */
+        input.lan4FatSilencio = true;
+        input.checked = false;
+        input.click();
+        input.lan4FatSilencio = false;
+        try { input.focus({ preventScroll: true }); } catch (e) {}
+      });
+    });
+    var foco = box.querySelector('input:checked') || box.querySelector('input[type="radio"]');
+    try { foco.focus({ preventScroll: true }); } catch (e) {}
+  }
+
+  /* Guarda a opção comum marcada ANTES do clique no Outro (para o cancelar
+     voltar a ela) e, se a pessoa troca para uma opção comum, o Outro volta
+     a ser só "Outro". */
+  document.addEventListener('pointerdown', function (e) {
+    var lab = e.target && e.target.closest && e.target.closest('label.lf-opt');
+    var inp = lab && lab.querySelector('input[data-fat-outro]');
+    if (!inp) return;
+    var marcado = grupoDe(inp).querySelector('input[name="faturamento"]:checked');
+    inp.lan4FatAnterior = (marcado && marcado !== inp) ? marcado : null;
+  }, true);
+
+  function gatilho(inp) {
+    if (!inp || inp.lan4FatSilencio || aberto) return;
+    setTimeout(function () { if (!aberto) abre(inp); }, 0);
+  }
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    if (!t || !t.closest) return;
+    var lab = t.closest('label.lf-opt');
+    var inp = lab ? lab.querySelector('input[data-fat-outro]') : null;
+    if (!inp && t.matches && t.matches('input[data-fat-outro]')) inp = t;
+    gatilho(inp);
+  }, true);
+  document.addEventListener('change', function (e) {
+    var t = e.target;
+    if (!t || t.name !== 'faturamento' || t.type !== 'radio') return;
+    if (t.hasAttribute('data-fat-outro')) { if (!t.value) gatilho(t); return; } /* teclado (setas) */
+    grupoDe(t).querySelectorAll('input[data-fat-outro]').forEach(limpa);
+  }, true);
+  document.addEventListener('reset', function (e) {
+    var f = e.target;
+    if (f && f.querySelectorAll) f.querySelectorAll('input[data-fat-outro]').forEach(limpa);
+  }, true);
+})();
+
 /* ─── Envio ao RD Station — API de conversão v2, com modo prévia ────────
    Fora de lan4.com.br (window.LAN4_PREVIEW, definido no index.html) o
    POST não acontece: simula sucesso p/ validar a UX sem criar lead.
@@ -1159,7 +1312,7 @@ var LAN4_RD_CF_NOVOS = ['cf_rastreamento_ids', 'cf_rastreamento_origem', 'cf_for
 
 /* NOVO 2026-10-28: qual formulário/variante gerou a conversão — vai em TODO
    envio ao RD (parcial e completo), para o funil diário ler direto do RD.
-   lan4-B|C|D = form principal (sorteio do form-ab.js, que NÃO muda);
+   lan4-B|C|D|E = form principal (sorteio do form-ab.js; E = anual desde 25/11/2026);
    lan4-whatsapp / lan4-isca = modal de WhatsApp e material isca (não são
    o form A/B); lan4-desconhecida = form sem form-ab.js carregado. */
 function lan4FormVariantRd(identificador) {
@@ -1167,7 +1320,7 @@ function lan4FormVariantRd(identificador) {
   if (id.indexOf('lan4-whatsapp-click') === 0) return 'lan4-whatsapp';
   if (id.indexOf('lan4-material-isca') === 0) return 'lan4-isca';
   var v = window.LAN4_FORM_VARIANT;
-  return (v === 'B' || v === 'C' || v === 'D') ? 'lan4-' + v : 'lan4-desconhecida';
+  return (v === 'B' || v === 'C' || v === 'D' || v === 'E') ? 'lan4-' + v : 'lan4-desconhecida';
 }
 function lan4AplicaRastreamento(payload) {
   var p = Object.assign({}, payload);
@@ -1210,14 +1363,27 @@ function lan4EnviaRd(payload, opts) {
      tiver cf_rastreamento_ids/cf_rastreamento_origem (que podem ainda não
      existir na conta), reenvia 1x SEM eles — o lead nunca se perde por causa
      de campo de atribuição (o event_id do dataLayer segue). */
+  /* 2º nível (2026-11-25): se ainda assim o RD recusar (4xx) e houver
+     faturamento, reenvia sem ele — cobre faixa nova de faturamento ainda não
+     cadastrada como opção do campo cf_faturamento_medio_mensal no RD. */
+  function recusou(r) { return !(r.ok || r.status < 400 || r.status >= 500); }
   return post(payload).then(function (r) {
-    if (r.ok || r.status < 400 || r.status >= 500) return r;
-    var temNovos = LAN4_RD_CF_NOVOS.some(function (k) { return payload[k]; });
-    if (!temNovos) return r;
+    if (!recusou(r)) return r;
     var limpo = Object.assign({}, payload);
-    LAN4_RD_CF_NOVOS.forEach(function (k) { delete limpo[k]; });
-    console.warn('[RD Station] ' + r.status + ' com cf_* novos — reenviando sem eles. Crie os campos no RD.');
-    return post(limpo);
+    var temNovos = LAN4_RD_CF_NOVOS.some(function (k) { return payload[k]; });
+    var tentativa = Promise.resolve(r);
+    if (temNovos) {
+      LAN4_RD_CF_NOVOS.forEach(function (k) { delete limpo[k]; });
+      console.warn('[RD Station] ' + r.status + ' com cf_* novos — reenviando sem eles. Crie os campos no RD.');
+      tentativa = post(limpo);
+    }
+    return tentativa.then(function (r2) {
+      if (!recusou(r2) || !limpo.cf_faturamento_medio_mensal) return r2;
+      var semFat = Object.assign({}, limpo);
+      delete semFat.cf_faturamento_medio_mensal;
+      console.warn('[RD Station] ' + r2.status + ' — reenviando sem faturamento. Confira se a opção "' + limpo.cf_faturamento_medio_mensal + '" existe no campo do RD.');
+      return post(semFat);
+    });
   });
 }
 
@@ -2125,7 +2291,8 @@ const revealObserver = new IntersectionObserver((entries) => {
       + '  <input name="nome" autocomplete="name" placeholder="Nome" required style="width:100%;box-sizing:border-box;padding:11px 12px;margin-bottom:10px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-size:14px;background:rgba(255,255,255,.06);color:#fff;">'
       + '  <input name="email" type="email" autocomplete="email" placeholder="Seu melhor e-mail" required style="width:100%;box-sizing:border-box;padding:11px 12px;margin-bottom:10px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-size:14px;background:rgba(255,255,255,.06);color:#fff;">'
       + '  <input name="telefone" type="tel" autocomplete="tel-national" placeholder="WhatsApp com DDD (ex.: 11998765432)" required style="width:100%;box-sizing:border-box;padding:11px 12px;margin-bottom:10px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-size:14px;background:rgba(255,255,255,.06);color:#fff;">'
-      + '  <select name="faturamento" required class="lan4-servico-select" style="width:100%;box-sizing:border-box;padding:11px 12px;margin-bottom:10px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-size:14px;background-color:rgba(255,255,255,.06);color:#fff;"><option value="" disabled selected style="color:#fff;background:#0d2149;">Faturamento mensal da empresa</option><option value="Até 100k" style="color:#fff;background:#0d2149;">Menos de R$ 100 mil/mês</option><option value="100 - 300k" style="color:#fff;background:#0d2149;">R$ 100 a 300 mil</option><option value="300k - 1M" style="color:#fff;background:#0d2149;">R$ 300 mil a 1 milhão</option><option value="Acima de 1M" style="color:#fff;background:#0d2149;">Acima de R$ 1 milhão</option><option value="Não faturo" style="color:#fff;background:#0d2149;">Ainda não faturo</option></select>'
+      + '  <select name="faturamento" required class="lan4-servico-select" style="width:100%;box-sizing:border-box;padding:11px 12px;margin-bottom:10px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-size:14px;background-color:rgba(255,255,255,.06);color:#fff;"><option value="" disabled selected style="color:#fff;background:#0d2149;">Faturamento mensal da empresa</option><option value="100 - 300k" style="color:#fff;background:#0d2149;">R$ 100 a 300 mil</option><option value="300k - 1M" style="color:#fff;background:#0d2149;">R$ 300 mil a 1 milhão</option><option value="Acima de 1M" style="color:#fff;background:#0d2149;">Acima de R$ 1 milhão</option><option value="Não faturo" style="color:#fff;background:#0d2149;">Ainda não faturo</option><option value="__outro" style="color:#fff;background:#0d2149;">Outro</option></select>'
+      + '  <select name="faturamento_faixa" class="lan4-servico-select" style="display:none;width:100%;box-sizing:border-box;padding:11px 12px;margin-bottom:10px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-size:14px;background-color:rgba(255,255,255,.06);color:#fff;"><option value="" disabled selected style="color:#fff;background:#0d2149;">Selecione a faixa</option><option value="0 - 10k" style="color:#fff;background:#0d2149;">R$ 0 a 10 mil</option><option value="10 - 25k" style="color:#fff;background:#0d2149;">R$ 10 a 25 mil</option><option value="25 - 45k" style="color:#fff;background:#0d2149;">R$ 25 a 45 mil</option><option value="45 - 70k" style="color:#fff;background:#0d2149;">R$ 45 a 70 mil</option><option value="70 - 100k" style="color:#fff;background:#0d2149;">R$ 70 a 100 mil</option></select>'
       + '  <select name="cargo" required class="lan4-servico-select" style="width:100%;box-sizing:border-box;padding:11px 12px;margin-bottom:10px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-size:14px;background-color:rgba(255,255,255,.06);color:#fff;"><option value="" disabled selected style="color:#fff;background:#0d2149;">Seu cargo</option><option value="Sócio" style="color:#fff;background:#0d2149;">Sócio</option><option value="CEO / Fundador" style="color:#fff;background:#0d2149;">CEO / Fundador</option><option value="Diretor" style="color:#fff;background:#0d2149;">Diretor</option><option value="Gerente" style="color:#fff;background:#0d2149;">Gerente</option><option value="Outro" style="color:#fff;background:#0d2149;">Outro</option></select>'
       + '  <select name="servico_interesse" required class="lan4-servico-select" style="width:100%;box-sizing:border-box;padding:11px 12px;margin-bottom:6px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-size:14px;background-color:rgba(255,255,255,.06);color:#fff;">'
       + '    <option value="" disabled selected style="color:#fff;background:#0d2149;">Qual serviço te interessa?</option>'
@@ -2141,6 +2308,20 @@ const revealObserver = new IntersectionObserver((entries) => {
 
     var form = box.querySelector('#lan4-whatsapp-form');
     var erroEl = box.querySelector('#lan4-whatsapp-erro');
+
+    /* 2026-11-25: "Outro" no faturamento mostra a 2ª lista (faixas abaixo de
+       R$ 100 mil). O valor enviado é sempre a faixa, nunca "__outro". */
+    var fatSel = form.querySelector('[name="faturamento"]');
+    var fatFaixa = form.querySelector('[name="faturamento_faixa"]');
+    fatSel.addEventListener('change', function () {
+      var outro = fatSel.value === '__outro';
+      fatFaixa.style.display = outro ? '' : 'none';
+      if (outro) { try { fatFaixa.focus(); } catch (e) {} } else { fatFaixa.selectedIndex = 0; }
+    });
+    function fatModal() {
+      var v = lan4CampoValor(form, 'faturamento');
+      return v === '__outro' ? lan4CampoValor(form, 'faturamento_faixa') : v;
+    }
 
     var ctaLocation = (opcoes && opcoes.cta_location) || 'whatsapp_float';
     var enviado = false;
@@ -2159,7 +2340,7 @@ const revealObserver = new IntersectionObserver((entries) => {
       if (!nome || lan4ValidaTelefone(telefone)) return;
       parcialEnviado = true;
       var email = lan4CampoValor(form, 'email');
-      var faturamento = lan4CampoValor(form, 'faturamento');
+      var faturamento = fatModal();
       var cargo = lan4CampoValor(form, 'cargo');
       var servico = lan4CampoValor(form, 'servico_interesse');
       var eventId = lan4EventId();
@@ -2204,7 +2385,7 @@ const revealObserver = new IntersectionObserver((entries) => {
       var nome = lan4CampoValor(form, 'nome');
       var email = lan4CampoValor(form, 'email');
       var telefone = lan4CampoValor(form, 'telefone');
-      var faturamento = lan4CampoValor(form, 'faturamento');
+      var faturamento = fatModal();
       var cargo = lan4CampoValor(form, 'cargo');
       var servico = lan4CampoValor(form, 'servico_interesse');
 

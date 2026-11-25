@@ -46,7 +46,19 @@
    "300k - 1M",
    "Acima de 1M",
    "Até 100k",
-   "Não faturo"
+   "Não faturo",
+   "0 - 10k",
+   "10 - 25k",
+   "25 - 45k",
+   "45 - 70k",
+   "70 - 100k",
+   "600k - 1,2M/ano",
+   "1,2M - 4,8M/ano",
+   "4,8M - 12M/ano",
+   "Acima de 12M/ano",
+   "Até 100k/ano",
+   "100k - 300k/ano",
+   "300k - 600k/ano"
   ],
   "cf_nosette_tipo_de_servico": [],
   "cf_form_variant": [],
@@ -121,5 +133,6 @@
    "Entrega do imóvel muito distante",
    "Sem retorno ao contato"
   ]
- }
+ },
+ "nota_2026_11_25": "cf_faturamento_medio_mensal inclui as 12 opcoes novas que o Giovanny vai cadastrar no RD (simula o estado pos-cadastro)."
 }

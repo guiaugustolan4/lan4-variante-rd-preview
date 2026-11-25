@@ -751,6 +751,15 @@
                 <span class="lf-progress-seg is-active"></span><span class="lf-progress-seg"></span><span class="lf-progress-seg"></span>
               </div>
             </div>
+            <div class="lf-progress" data-fv-progress="E">
+              <div class="lf-progress-meta">
+                <span class="lf-progress-count">Etapa <b data-step-current>1</b> de 3</span>
+                <span class="lf-progress-title" data-step-title>Sobre a sua empresa</span>
+              </div>
+              <div class="lf-progress-track" aria-hidden="true">
+                <span class="lf-progress-seg is-active"></span><span class="lf-progress-seg"></span><span class="lf-progress-seg"></span>
+              </div>
+            </div>
             <div class="lf-progress" data-fv-progress="C">
               <div class="lf-progress-meta">
                 <span class="lf-progress-count">Etapa <b data-step-current>1</b> de 3</span>
@@ -793,11 +802,11 @@
               <div class="lf-group" role="radiogroup" aria-label="Faturamento médio mensal">
                 <label class="lf-sublabel">Faturamento médio mensal*</label>
                 <div class="lf-options">
-                  <label class="lf-opt"><input type="radio" name="faturamento" value="Até 100k"><span>Menos de R$ 100 mil/mês</span></label>
                   <label class="lf-opt"><input type="radio" name="faturamento" value="100 - 300k"><span>R$ 100 a 300 mil</span></label>
                   <label class="lf-opt"><input type="radio" name="faturamento" value="300k - 1M"><span>R$ 300 mil a 1 milhão</span></label>
                   <label class="lf-opt"><input type="radio" name="faturamento" value="Acima de 1M"><span>Acima de R$ 1 milhão</span></label>
                   <label class="lf-opt"><input type="radio" name="faturamento" value="Não faturo"><span>Ainda não faturo</span></label>
+                  <label class="lf-opt lf-opt-outro"><input type="radio" name="faturamento" value="" data-fat-outro="mensal"><span>Outro</span></label>
                 </div>
               </div>
               <div class="lf-group" role="radiogroup" aria-label="Qual o seu cargo">
@@ -875,11 +884,11 @@
               <div class="lf-group" role="radiogroup" aria-label="Faturamento médio mensal">
                 <label class="lf-sublabel">Faturamento médio mensal*</label>
                 <div class="lf-options">
-                  <label class="lf-opt"><input type="radio" name="faturamento" value="Até 100k"><span>Menos de R$ 100 mil/mês</span></label>
                   <label class="lf-opt"><input type="radio" name="faturamento" value="100 - 300k"><span>R$ 100 a 300 mil</span></label>
                   <label class="lf-opt"><input type="radio" name="faturamento" value="300k - 1M"><span>R$ 300 mil a 1 milhão</span></label>
                   <label class="lf-opt"><input type="radio" name="faturamento" value="Acima de 1M"><span>Acima de R$ 1 milhão</span></label>
                   <label class="lf-opt"><input type="radio" name="faturamento" value="Não faturo"><span>Ainda não faturo</span></label>
+                  <label class="lf-opt lf-opt-outro"><input type="radio" name="faturamento" value="" data-fat-outro="mensal"><span>Outro</span></label>
                 </div>
               </div>
               <div class="lf-group" role="radiogroup" aria-label="Qual o seu cargo">
@@ -929,11 +938,11 @@
               <div class="lf-group" role="radiogroup" aria-label="Faturamento médio mensal">
                 <label class="lf-sublabel">Faturamento médio mensal*</label>
                 <div class="lf-options">
-                  <label class="lf-opt"><input type="radio" name="faturamento" value="Até 100k"><span>Menos de R$ 100 mil/mês</span></label>
                   <label class="lf-opt"><input type="radio" name="faturamento" value="100 - 300k"><span>R$ 100 a 300 mil</span></label>
                   <label class="lf-opt"><input type="radio" name="faturamento" value="300k - 1M"><span>R$ 300 mil a 1 milhão</span></label>
                   <label class="lf-opt"><input type="radio" name="faturamento" value="Acima de 1M"><span>Acima de R$ 1 milhão</span></label>
                   <label class="lf-opt"><input type="radio" name="faturamento" value="Não faturo"><span>Ainda não faturo</span></label>
+                  <label class="lf-opt lf-opt-outro"><input type="radio" name="faturamento" value="" data-fat-outro="mensal"><span>Outro</span></label>
                 </div>
               </div>
               <div class="lf-group" role="radiogroup" aria-label="Qual o seu cargo">
@@ -1003,6 +1012,101 @@
               <div class="lf-group">
                 <label for="lfb-empresa">Empresa*</label>
                 <input id="lfb-empresa" name="empresa" type="text" autocomplete="organization" placeholder="Nome da empresa">
+              </div>
+              <label class="lf-consent">
+                <input type="checkbox" name="lgpd_consent">
+                <span>Autorizo a LAN4 a entrar em contato, conforme a <a href="/politica-de-privacidade/" target="_blank" rel="noopener">política de privacidade</a>.</span>
+              </label>
+              <div class="lf-step-msg" role="alert"></div>
+              <div class="lf-nav">
+                <button type="button" class="lf-back">Voltar</button>
+                <button type="submit" class="lf-btn">Enviar e falar com a LAN4</button>
+              </div>
+            </fieldset>
+
+            <!-- ═══ VARIANTE E — igual à B (3 etapas), faturamento ANUAL (2026-11-25) ═══ -->
+            <fieldset class="lf-step is-active" data-fv="E" data-step-name="qualificacao"
+                      data-step-title="Sobre a sua empresa"
+                      data-req="faturamento:Faturamento anual,cargo:Cargo">
+              <p class="lf-step-hint">Duas perguntas rápidas para direcionar seu contato para a pessoa certa.</p>
+              <div class="lf-group" role="radiogroup" aria-label="Faturamento anual">
+                <label class="lf-sublabel">Faturamento anual*</label>
+                <div class="lf-options">
+                  <label class="lf-opt"><input type="radio" name="faturamento" value="600k - 1,2M/ano"><span>R$ 600 mil a 1,2 milhão</span></label>
+                  <label class="lf-opt"><input type="radio" name="faturamento" value="1,2M - 4,8M/ano"><span>R$ 1,2 a 4,8 milhões</span></label>
+                  <label class="lf-opt"><input type="radio" name="faturamento" value="4,8M - 12M/ano"><span>R$ 4,8 a 12 milhões</span></label>
+                  <label class="lf-opt"><input type="radio" name="faturamento" value="Acima de 12M/ano"><span>Acima de R$ 12 milhões</span></label>
+                  <label class="lf-opt"><input type="radio" name="faturamento" value="Não faturo"><span>Ainda não faturo</span></label>
+                  <label class="lf-opt lf-opt-outro"><input type="radio" name="faturamento" value="" data-fat-outro="anual"><span>Outro</span></label>
+                </div>
+              </div>
+              <div class="lf-group" role="radiogroup" aria-label="Qual o seu cargo">
+                <label class="lf-sublabel">Qual o seu cargo?*</label>
+                <div class="lf-options">
+                  <label class="lf-opt"><input type="radio" name="cargo" value="Sócio"><span>Sócio</span></label>
+                  <label class="lf-opt"><input type="radio" name="cargo" value="CEO / Fundador"><span>CEO / Fundador</span></label>
+                  <label class="lf-opt"><input type="radio" name="cargo" value="Diretor"><span>Diretor</span></label>
+                  <label class="lf-opt"><input type="radio" name="cargo" value="Gerente"><span>Gerente</span></label>
+                  <label class="lf-opt"><input type="radio" name="cargo" value="Outro"><span>Outro</span></label>
+                </div>
+              </div>
+              <div class="lf-step-msg" role="alert"></div>
+              <div class="lf-nav">
+                <button type="button" class="lf-btn lf-next">Continuar</button>
+              </div>
+            </fieldset>
+            <fieldset class="lf-step" data-fv="E" data-step-name="contato"
+                      data-step-title="Como retornamos seu contato"
+                      data-req="nome:Nome,email:Email,telefone:Telefone">
+              <p class="lf-step-hint">Falta pouco. Usamos só para retornar este contato.</p>
+              <div class="lf-row">
+                <div class="lf-group">
+                  <label for="lfe-nome">Nome*</label>
+                  <input id="lfe-nome" name="nome" type="text" autocomplete="name" enterkeyhint="next" placeholder="Seu nome completo">
+                </div>
+                <div class="lf-group">
+                  <label for="lfe-email">Seu melhor e-mail*</label>
+                  <input id="lfe-email" name="email" type="email" inputmode="email" autocomplete="email" enterkeyhint="next" placeholder="voce@suaempresa.com.br">
+                  <span class="lf-field-hint lf-email-typo" hidden></span>
+                </div>
+              </div>
+              <div class="lf-row">
+                <div class="lf-group">
+                  <label for="lfe-tel">WhatsApp com DDD*</label>
+                  <input id="lfe-tel" name="telefone" type="tel" inputmode="numeric" autocomplete="tel-national" enterkeyhint="next" placeholder="(11) 99999-9999">
+                  <span class="lf-field-hint">Usamos seu WhatsApp só para retornar este contato.</span>
+                </div>
+              </div>
+              <div class="lf-step-msg" role="alert"></div>
+              <div class="lf-nav">
+                <button type="button" class="lf-back">Voltar</button>
+                <button type="button" class="lf-btn lf-next">Continuar</button>
+              </div>
+            </fieldset>
+            <fieldset class="lf-step" data-fv="E" data-step-name="comercial" data-no-autoadvance
+                      data-step-title="Sobre sua área comercial"
+                      data-req="area_comercial:Como funciona sua área comercial hoje,tamanho_time:Tamanho do time comercial,empresa:Empresa,lgpd_consent:Autorização de contato (LGPD)">
+              <div class="lf-group" role="radiogroup" aria-label="Como funciona sua área comercial hoje?" data-rd-cf="cf_como_funciona_sua_area_comercial_hoje" data-rd-name="area_comercial">
+                <span class="lf-label">Como funciona sua área comercial hoje?*</span>
+                <div class="lf-options">
+                  <label class="lf-opt"><input type="radio" name="area_comercial" value="Não temos time estruturado"><span>Não temos time estruturado</span></label>
+                  <label class="lf-opt"><input type="radio" name="area_comercial" value="Tenho um vendedor interno"><span>Tenho um vendedor interno</span></label>
+                  <label class="lf-opt"><input type="radio" name="area_comercial" value="Tenho um time interno"><span>Tenho um time interno</span></label>
+                  <label class="lf-opt"><input type="radio" name="area_comercial" value="Trabalho com parceiros / representantes"><span>Trabalho com parceiros / representantes</span></label>
+                </div>
+              </div>
+              <div class="lf-group" role="radiogroup" aria-label="Qual o tamanho do time comercial?" data-rd-cf="cf_tamanho_do_time_comercial" data-rd-name="tamanho_time">
+                <span class="lf-label">Qual o tamanho do time comercial?*</span>
+                <div class="lf-options">
+                  <label class="lf-opt"><input type="radio" name="tamanho_time" value="Só eu vendo"><span>Só eu vendo</span></label>
+                  <label class="lf-opt"><input type="radio" name="tamanho_time" value="1 a 2 vendedores"><span>1 a 2 vendedores</span></label>
+                  <label class="lf-opt"><input type="radio" name="tamanho_time" value="3 a 10 vendedores"><span>3 a 10 vendedores</span></label>
+                  <label class="lf-opt"><input type="radio" name="tamanho_time" value="Mais de 10 vendedores"><span>Mais de 10 vendedores</span></label>
+                </div>
+              </div>
+              <div class="lf-group">
+                <label for="lfe-empresa">Empresa*</label>
+                <input id="lfe-empresa" name="empresa" type="text" autocomplete="organization" placeholder="Nome da empresa">
               </div>
               <label class="lf-consent">
                 <input type="checkbox" name="lgpd_consent">
@@ -1190,9 +1294,9 @@
   </div>
 
   <!-- JS -->
-  <script src="../../form-ab.js?v=20261111-bd" defer></script>
+  <script src="../../form-ab.js?v=20261125-bde" defer></script>
   <script src="../../preview-rd-simulador.js"></script>
-  <script src="../../main.js?v=20261111a" defer></script>
+  <script src="../../main.js?v=20261125a" defer></script>
 
 </body>
 </html>
